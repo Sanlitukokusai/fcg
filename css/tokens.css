@@ -1,0 +1,81 @@
+/* ============================================================
+ * Design tokens — extracted from pics.tokyo recon
+ * ============================================================ */
+
+@font-face {
+  font-family: "PICSConduit";
+  src: url("../fonts/PICSConduitCustom-BoldItalic.woff") format("woff");
+  font-weight: 700;
+  font-style: italic;
+  font-display: swap;
+}
+
+:root {
+  /* Colors — strict two-tone */
+  --color-bg:           #000000;
+  --color-fg:           #ffffff;
+  --color-muted:        #999999;
+  --color-divider:      #e5e5e5;
+  --color-fg-40:        rgba(255, 255, 255, 0.4);
+  --color-mark-faint:   rgba(255, 255, 255, 0.08); /* loading mark watermark */
+
+  /* Typography stack */
+  --font-jp: "Noto Sans JP", 游ゴシック体, "Yu Gothic", 游ゴシック,
+             system-ui, "Hiragino Kaku Gothic ProN", "Hiragino Mincho Pro",
+             Meiryo, sans-serif;
+  --font-display: "PICSConduit", "Saira Condensed", "Bebas Neue", sans-serif;
+
+  /* Type scale (rounded to closest 2px from real values) */
+  --fs-xs:   12px;
+  --fs-sm:   14px;
+  --fs-md:   16px;
+  --fs-lg:   18px;
+  --fs-xl:   26px;
+  --fs-2xl:  36px;
+
+  /* Letter-spacing — used for ALL CAPS English */
+  --tracking-tight:  0.48px;   /* small caps */
+  --tracking-base:   1.2px;
+  --tracking-wide:   2.34px;
+  --tracking-wider:  4.68px;
+
+  /* Spacing system (from observed high-frequency values) */
+  --space-2:   2px;
+  --space-3:   3px;
+  --space-4:   4px;
+  --space-5:   5px;
+  --space-10:  10px;
+  --space-13:  13px;
+  --space-30:  30px;
+  --space-34:  34px;
+  --space-40:  40px;
+  --space-70:  70px;
+  --space-80:  80px;
+
+  /* Animation — the two signature easings */
+  --ease-out-circ:    cubic-bezier(0.165, 0.84, 0.44, 1);
+  --ease-inout-circ:  cubic-bezier(0.77, 0, 0.355, 1);
+  --ease-inout-cubic: cubic-bezier(0.645, 0.045, 0.175, 1);
+
+  --dur-fast:    0.4s;
+  --dur-base:    0.5s;
+  --dur-cover:   0.6s;
+
+  /* Layout */
+  --header-h:        56px;
+  --nav-item-h:      112px;   /* exact PC nav item height */
+  --letter-h:        112px;   /* PC letter sprite height */
+  --letter-h-sp:     4.6vh;   /* SP letter sprite height */
+  --breakpoint-sp:   900px;
+
+  /* SP design baseline = 750px wide */
+  --sp-design-base:  750;
+}
+
+/* Reset */
+*, *::before, *::after { box-sizing: border-box; }
+html, body { margin: 0; padding: 0; }
+img { display: block; max-width: 100%; }
+a { color: inherit; text-decoration: none; }
+button { font: inherit; color: inherit; background: none; border: 0; cursor: pointer; }
+ul { margin: 0; padding: 0; list-style: none; }

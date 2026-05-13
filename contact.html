@@ -1,0 +1,120 @@
+<!doctype html>
+<html lang="ja" class="is-sub">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>お問い合わせ — FCG</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&family=Noto+Sans+JP:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/tokens.css">
+  <link rel="stylesheet" href="css/main.css">
+  <link rel="stylesheet" href="css/fcg.css">
+</head>
+<body data-screen-label="06 Contact">
+
+<button class="c-gnav__trigger" id="burger" aria-label="メニュー">
+  <span class="line"></span><span class="line"></span><span class="line"></span>
+</button>
+
+<header class="c-header">
+  <a href="index.html" class="c-header__logo" data-page>
+    <span class="mark-text">F·C·G</span>
+    <small>Generative AI Film Studio</small>
+  </a>
+  <nav class="c-header__nav">
+    <a href="contact.html" data-page>CONTACT</a>
+    <a href="#">EN</a><a href="#">KR</a>
+  </nav>
+</header>
+
+<main class="p-sub">
+  <section class="p-sub__hero">
+    <div>
+      <div class="p-sub__crumb">FCG / Contact · お問い合わせ</div>
+      <h1 class="p-sub__h">Contact<span class="jp">ご相談・お問い合わせ</span></h1>
+    </div>
+    <div class="p-sub__count">REPLY <b>~3 days</b>平日対応</div>
+  </section>
+
+  <section class="p-sub__section">
+    <div class="p-sub__sectionHead">01 / Inquiry form</div>
+    <div class="p-contact__wrap">
+      <form class="p-contact__form" onsubmit="event.preventDefault(); alert('（プロトタイプ）送信は未配線です。studio@fcg.film まで直接ご連絡ください。');">
+        <div class="p-contact__field">
+          <label>お問い合わせの種類<span class="req">*</span></label>
+          <div class="p-contact__radio">
+            <input type="radio" id="kind-work"    name="kind" checked><label for="kind-work">案件相談</label>
+            <input type="radio" id="kind-press"   name="kind"><label for="kind-press">取材依頼</label>
+            <input type="radio" id="kind-recruit" name="kind"><label for="kind-recruit">採用について</label>
+            <input type="radio" id="kind-other"   name="kind"><label for="kind-other">その他</label>
+          </div>
+        </div>
+        <div class="p-contact__field">
+          <label>お名前<span class="req">*</span></label>
+          <input type="text" placeholder="例：山田 太郎" required>
+        </div>
+        <div class="p-contact__field">
+          <label>会社・所属（任意）</label>
+          <input type="text" placeholder="例：株式会社○○">
+        </div>
+        <div class="p-contact__field">
+          <label>メールアドレス<span class="req">*</span></label>
+          <input type="email" placeholder="example@domain.com" required>
+        </div>
+        <div class="p-contact__field">
+          <label>ご相談内容<span class="req">*</span></label>
+          <textarea placeholder="プロジェクトの概要、目的、想定スケジュール、参考映像などをお書きください。" required></textarea>
+        </div>
+        <button type="submit" class="p-contact__submit">送信する</button>
+      </form>
+
+      <aside class="p-contact__info">
+        <div>
+          <h4>Direct</h4>
+          <div class="line">studio@fcg.film<small>Email · best for project briefs</small></div>
+        </div>
+        <div>
+          <h4>Studio</h4>
+          <div class="line">東京都目黒区中目黒<small>Naka-Meguro · Tokyo · Japan</small></div>
+        </div>
+        <div>
+          <h4>Hours</h4>
+          <div class="line">平日 10:00 – 19:00<small>JST · Reply within ~3 business days</small></div>
+        </div>
+        <div>
+          <h4>Social</h4>
+          <div class="line">Instagram / Vimeo / X / Behance<small>@fcg.studio (placeholder)</small></div>
+        </div>
+      </aside>
+    </div>
+  </section>
+</main>
+
+<nav class="c-gnav" id="gnav" aria-hidden="true">
+  <aside class="c-gnav__sns"><a href="#">Instagram</a><a href="#">Vimeo</a><a href="#">X</a><a href="#">Behance</a></aside>
+  <div class="c-gnav__body">
+    <div class="c-gnav__col"><h6>Contents · 01</h6><ul>
+      <li><a href="index.html"  data-page><span class="num">01</span><span class="lbl">Home<span class="jp">ホーム</span></span></a></li>
+      <li><a href="news.html"   data-page><span class="num">02</span><span class="lbl">News<span class="jp">ニュース</span></span></a></li>
+      <li><a href="member.html" data-page><span class="num">03</span><span class="lbl">Member<span class="jp">メンバー</span></span></a></li>
+    </ul></div>
+    <div class="c-gnav__col"><h6>About · 02</h6><ul>
+      <li><a href="company.html" data-page><span class="num">04</span><span class="lbl">Company<span class="jp">会社情報</span></span></a></li>
+      <li><a href="recruit.html" data-page><span class="num">05</span><span class="lbl">Recruit<span class="jp">採用情報</span></span></a></li>
+    </ul></div>
+    <div class="c-gnav__col"><h6>Inquiry · 03</h6><ul>
+      <li><a href="contact.html" data-page><span class="num">06</span><span class="lbl">Contact<span class="jp">お問い合わせ</span></span></a></li>
+    </ul></div>
+    <div class="c-gnav__addr">
+      <div class="blk"><b>Tokyo · Studio</b>Naka-Meguro · Tokyo · Japan<br><span class="jp">東京都目黒区中目黒</span></div>
+      <div class="blk"><b>Studio Director</b>Director · Founder<br><span class="jp">代表ディレクター</span><br>studio@fcg.film</div>
+    </div>
+  </div>
+</nav>
+
+<div class="c-cover is-in"></div>
+
+<script src="js/main.js"></script>
+</body>
+</html>

@@ -1,0 +1,370 @@
+/* ============================================================
+ * Main layout — pics.tokyo homepage replica (M1 skeleton)
+ * Architecture: PC = horizontal scroll, SP = vertical stack
+ * ============================================================ */
+
+html, body {
+  overflow: hidden;
+  width: 100%;
+  height: 100%;
+  background: var(--color-bg);
+  color: var(--color-fg);
+  font-family: var(--font-jp);
+  font-size: var(--fs-xs);
+  line-height: 1;
+  -webkit-font-smoothing: antialiased;
+}
+
+body {
+  font-weight: 700; /* site default is Bold */
+}
+
+/* Global stage container */
+.c-pics {
+  position: relative;
+  width: 100%;
+  height: 100%;
+}
+
+/* ============================================================
+ * Header — persistent top bar
+ * ============================================================ */
+.c-header {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: var(--header-h);
+  z-index: 1000;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 var(--space-30);
+  pointer-events: none; /* let content under it work */
+}
+.c-header > * { pointer-events: auto; }
+
+.c-header__logo img {
+  height: 24px;
+  width: auto;
+}
+
+.c-header__nav {
+  display: flex;
+  gap: var(--space-30);
+  font-size: var(--fs-xs);
+  letter-spacing: var(--tracking-wide);
+}
+
+/* ============================================================
+ * Hamburger trigger (visible on SP)
+ * ============================================================ */
+.c-gnav__trigger {
+  position: fixed;
+  top: 0;
+  right: 0;
+  width: 56px;
+  height: 56px;
+  z-index: 1100;
+  display: none; /* SP only */
+  align-items: center;
+  justify-content: center;
+}
+
+/* ============================================================
+ * Homepage scroll container
+ * ============================================================ */
+.p-top {
+  position: relative;
+  width: 100vw;
+  height: 100vh;
+  overflow-x: auto;
+  overflow-y: hidden;
+  /* Hide scrollbars */
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+.p-top::-webkit-scrollbar { display: none; }
+
+.p-top__wrap {
+  position: relative;
+  width: max-content;          /* horizontal content can be wider than viewport */
+  height: 100%;
+  min-width: 100vw;
+}
+
+/* WebGL canvas (decorative, pointer-events: none for M1) */
+#canvasContainer {
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+}
+#canvasContainer canvas {
+  display: block;
+}
+
+/* ============================================================
+ * Horizontal mega-nav (PC)
+ * 9 items in a row, each 112px tall
+ * ============================================================ */
+.top_nav {
+  position: relative;
+  z-index: 10;
+  margin-top: calc(50vh - 56px);  /* roughly centered vertically */
+  padding-left: 95px;             /* matches original left padding */
+}
+
+.top_nav ul {
+  display: flex;
+  flex-wrap: nowrap;
+  align-items: center;
+  gap: 0;
+}
+
+.top_nav li {
+  position: relative;
+  flex: 0 0 auto;
+  height: var(--nav-item-h);
+  /* No gap — original items butt up against each other */
+}
+
+.top_nav a {
+  position: relative;
+  display: block;
+  height: 100%;
+}
+
+/* PC variants */
+.top_nav .pc.container {
+  display: flex;
+  height: 100%;
+  overflow: hidden;
+  transition: opacity var(--dur-fast) var(--ease-out-circ);
+}
+.top_nav .pc.container img {
+  height: var(--letter-h);
+  width: auto;
+  pointer-events: none;
+}
+.top_nav .pc.over {
+  position: absolute;
+  top: 0;
+  left: 0;
+  height: 100%;
+  opacity: 0;
+  transition: opacity var(--dur-fast) var(--ease-out-circ);
+}
+.top_nav .pc.over img {
+  height: var(--letter-h);
+  width: auto;
+}
+
+/* Hover state cross-fade */
+.top_nav a:hover .pc.container { opacity: 0; }
+.top_nav a:hover .pc.over      { opacity: 1; }
+
+/* SP variants (default hidden) */
+.top_nav .sp.container,
+.top_nav .sp.over,
+.top_nav .sp.line {
+  display: none;
+}
+
+/* ============================================================
+ * Custom scroll UI (PC only)
+ * ============================================================ */
+.scroll_ui {
+  position: fixed;
+  bottom: 24px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 100;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  user-select: none;
+  pointer-events: none;
+}
+
+.scroll_ui .def,
+.scroll_ui .hover {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  transition: opacity var(--dur-fast) var(--ease-out-circ);
+}
+.scroll_ui .hover {
+  position: absolute;
+  opacity: 0;
+}
+.scroll_ui.is-hover .def   { opacity: 0; }
+.scroll_ui.is-hover .hover { opacity: 1; }
+
+.scroll_ui .scroll img {
+  height: 17px;
+  width: auto;
+}
+
+.scroll_ui .bars {
+  position: relative;
+  width: 120px;
+  height: 1px;
+}
+.scroll_ui .base_bar {
+  position: absolute;
+  inset: 0;
+  background: var(--color-fg-40);
+}
+.scroll_ui .bar {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 0;
+  height: 1px;
+  background: var(--color-fg);
+  transition: width 0.1s linear, left 0.1s linear;
+}
+
+/* ============================================================
+ * Loading overlay
+ * ============================================================ */
+.c-loading {
+  position: fixed;
+  inset: 0;
+  z-index: 10000;
+  background: var(--color-bg);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  pointer-events: none;
+}
+.c-loading.is-hidden {
+  display: none;
+}
+.c-loading .mark {
+  position: absolute;
+  top: 50%; left: 50%;
+  transform: translate(-50%, -50%);
+  height: 95.4%;
+  opacity: 0.08;
+}
+.c-loading .mark img { height: 100%; width: auto; }
+
+.c-loading .txt {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  z-index: 1;
+}
+.c-loading .txt > img:first-child { height: 40px; width: auto; }
+.c-loading .txt .dot1 { animation: blink1 1.2s infinite; }
+.c-loading .txt .dot2 { animation: blink2 1.2s infinite; }
+.c-loading .txt .dot1,
+.c-loading .txt .dot2 {
+  width: 7px; height: 7px;
+}
+
+@keyframes blink1 {
+  0%, 24.9% { opacity: 0; }
+  25%, 100% { opacity: 1; }
+}
+@keyframes blink2 {
+  0%, 49.9% { opacity: 0; }
+  50%, 100% { opacity: 1; }
+}
+
+/* ============================================================
+ * Page-transition cover
+ * ============================================================ */
+.c-cover {
+  position: fixed;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 100000;
+  transform: translate3d(0, 0, 0);
+  pointer-events: none;
+}
+.c-cover__a {
+  position: absolute;
+  top: 0; right: 0;
+  height: 100%;
+  width: calc(100% + 200px);
+  background: var(--color-bg);
+  transform: translate3d(100%, 0, 0);    /* off-screen right by default */
+}
+.c-cover.is-leaving .c-cover__a {
+  transition: transform var(--dur-cover) var(--ease-inout-cubic);
+  transform: translate3d(0%, 0, 0);
+}
+
+/* ============================================================
+ * Background mark watermark
+ * ============================================================ */
+.bg-mark {
+  position: fixed;
+  bottom: 24px;
+  left: 24px;
+  z-index: 1;
+  opacity: 0.4;
+  pointer-events: none;
+}
+.bg-mark img { height: 24px; width: auto; }
+
+/* ============================================================
+ * Mobile (SP) — @media (max-width: 900px)
+ * ============================================================ */
+@media (max-width: 900px) {
+  .p-top {
+    overflow-x: hidden;
+    overflow-y: auto;
+  }
+  .p-top__wrap {
+    width: 100%;
+    min-height: 100vh;
+    height: auto;
+  }
+
+  .scroll_ui   { display: none; }
+  #canvasContainer { display: none; } /* M1: skip WebGL on mobile */
+
+  .top_nav {
+    position: absolute;
+    top: 28.6vh;
+    left: 5vw;
+    margin-top: 0;
+    padding-left: 0;
+  }
+  .top_nav ul {
+    display: block;
+  }
+  .top_nav li {
+    height: auto;
+    margin-right: 0;
+    margin-bottom: 4.4vh;
+  }
+  .top_nav .pc { display: none; }
+
+  .top_nav .sp.container {
+    display: flex;
+    overflow: hidden;
+    transition: opacity var(--dur-fast) var(--ease-out-circ);
+  }
+  .top_nav .sp.container img {
+    height: 4.6vh;
+    width: auto;
+  }
+
+  /* Divider after the 5th item (COMPANY) */
+  .top_nav li:nth-child(5) .sp.line {
+    display: block;
+    width: 55vw;
+    height: 1px;
+    margin-top: 4.4vh;
+    background: var(--color-fg);
+  }
+
+  .c-gnav__trigger { display: flex; }
+}

@@ -1,0 +1,161 @@
+/* ============================================================
+ * Main interactions — pics-leaning replica + FCG technical layer
+ *
+ *   1. wheel → horizontal scroll (PC)
+ *   2. scroll_ui bar follows scrollLeft + visible-segment number
+ *   3. loading screen hide on DOMContentLoaded + min duration
+ *   4. burger ↔ c-gnav overlay (clip-path)
+ *   5. internal links → c-cover slide-in transition
+ *   6. Tweaks panel (press T to toggle)
+ * ============================================================ */
+(() => {
+  const isMobile = () => window.matchMedia('(max-width: 900px)').matches;
+  const $ = (sel) => document.querySelector(sel);
+
+  // ===== 1. Wheel → horizontal scroll (home page only) =====
+  const scroller = $('.p-top');
+  if (scroller) {
+    scroller.addEventListener('wheel', (e) => {
+      if (isMobile()) return;
+      const delta = Math.abs(e.deltaY) > Math.abs(e.deltaX) ? e.deltaY : e.deltaX;
+      if (delta !== 0) {
+        e.preventDefault();
+        scroller.scrollLeft += delta;
+      }
+    }, { passive: false });
+
+    // Drag-to-scroll
+    let dragStart = null;
+    scroller.addEventListener('pointerdown', (e) => {
+      if (isMobile() || e.target.closest('a, button')) return;
+      dragStart = { x: e.clientX, scrollLeft: scroller.scrollLeft };
+      scroller.setPointerCapture(e.pointerId);
+    });
+    scroller.addEventListener('pointermove', (e) => {
+      if (!dragStart) return;
+      scroller.scrollLeft = dragStart.scrollLeft - (e.clientX - dragStart.x);
+    });
+    ['pointerup', 'pointercancel'].forEach(ev =>
+      scroller.addEventListener(ev, () => { dragStart = null; })
+    );
+
+    // Keyboard navigation
+    window.addEventListener('keydown', (e) => {
+      if (e.key === 'ArrowRight') scroller.scrollBy({ left:  window.innerWidth * 0.55, behavior: 'smooth' });
+      if (e.key === 'ArrowLeft')  scroller.scrollBy({ left: -window.innerWidth * 0.55, behavior: 'smooth' });
+    });
+  }
+
+  // ===== 2. scroll_ui bar + segment number =====
+  const bar       = $('.scroll_ui .bar');
+  const baseBar   = $('.scroll_ui .base_bar');
+  const scrollUi  = $('.scroll_ui');
+  const segLabel  = $('#scrollSeg');
+
+  const updateBar = () => {
+    if (!scroller) return;
+    const max   = scroller.scrollWidth - scroller.clientWidth;
+    const ratio = max > 0 ? scroller.scrollLeft / max : 0;
+    if (bar && baseBar) bar.style.width = (ratio * baseBar.offsetWidth) + 'px';
+    if (segLabel) {
+      const total = 9;
+      const seg = Math.min(total, Math.max(1, Math.round(ratio * (total - 1)) + 1));
+      segLabel.textContent = String(seg).padStart(2, '0') + ' / ' + String(total).padStart(2, '0');
+    }
+  };
+  if (scroller) {
+    scroller.addEventListener('scroll', updateBar, { passive: true });
+    window.addEventListener('resize', updateBar);
+    updateBar();
+  }
+
+  // scroll_ui hover state (def ↔ hover)
+  if (scrollUi) {
+    scrollUi.addEventListener('mouseenter', () => scrollUi.classList.add('is-hover'));
+    scrollUi.addEventListener('mouseleave', () => scrollUi.classList.remove('is-hover'));
+  }
+
+  // ===== 3. Loading screen =====
+  const loading      = $('.c-loading');
+  const MIN_LOADING_MS = 1200;
+  const t0 = performance.now();
+  window.addEventListener('load', () => {
+    const wait = Math.max(0, MIN_LOADING_MS - (performance.now() - t0));
+    setTimeout(() => loading && loading.classList.add('is-hidden'), wait);
+  });
+
+  // ===== 4. Burger ↔ c-gnav overlay =====
+  const burger = $('.c-gnav__trigger') || $('#burger');
+  if (burger) {
+    burger.addEventListener('click', () => {
+      document.body.classList.toggle('is-gnav');
+    });
+  }
+  window.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape') document.body.classList.remove('is-gnav');
+  });
+
+  // ===== 5. Page-cover transitions for internal links =====
+  const cover = $('.c-cover');
+  function pageCover(href) {
+    if (!cover) { location.href = href; return; }
+    cover.classList.remove('is-out');
+    cover.classList.add('is-in');
+    setTimeout(() => { location.href = href; }, 520);
+  }
+  // Slide cover out on entry (subpages have c-cover.is-in baked in)
+  window.addEventListener('load', () => {
+    if (cover && cover.classList.contains('is-in')) {
+      requestAnimationFrame(() => {
+        cover.classList.remove('is-in');
+        cover.classList.add('is-out');
+        setTimeout(() => cover.classList.remove('is-out'), 620);
+      });
+    }
+  });
+  document.addEventListener('click', (e) => {
+    const a = e.target.closest('a[data-page]');
+    if (!a) return;
+    const href = a.getAttribute('href');
+    if (!href || href.startsWith('#') || href.startsWith('http') || href.startsWith('mailto:')) return;
+    e.preventDefault();
+    document.body.classList.remove('is-gnav');
+    pageCover(href);
+  });
+
+  // ===== 6. Tweaks panel =====
+  const tweaks = $('#tweaks');
+  if (tweaks && window.__fcgState && window.__fcgApplyTweaks) {
+    const state = window.__fcgState;
+    const refresh = () => {
+      tweaks.querySelectorAll('[data-tweak]').forEach((group) => {
+        const key = group.dataset.tweak;
+        group.querySelectorAll('.chip').forEach((c) => {
+          c.classList.toggle('is-on', c.dataset.v === state[key]);
+        });
+      });
+      const slider = $('#speedSlider');
+      if (slider) slider.value = Math.round((state.speed ?? 1) * 100);
+    };
+    tweaks.querySelectorAll('.chip').forEach((c) => {
+      c.addEventListener('click', () => {
+        const group = c.closest('[data-tweak]');
+        state[group.dataset.tweak] = c.dataset.v;
+        window.__fcgApplyTweaks();
+        refresh();
+      });
+    });
+    const slider = $('#speedSlider');
+    if (slider) slider.addEventListener('input', (e) => {
+      state.speed = e.target.value / 100;
+    });
+    $('#tweakClose')?.addEventListener('click', () => tweaks.classList.remove('is-open'));
+    window.addEventListener('keydown', (e) => {
+      if (e.key === 't' || e.key === 'T') {
+        if (e.target.matches('input, textarea')) return;
+        tweaks.classList.toggle('is-open');
+      }
+    });
+    refresh();
+  }
+})();
