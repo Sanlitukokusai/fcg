@@ -162,6 +162,20 @@ html.is-sub body {
 }
 
 /* ============================================================
+ * Loading overlay — FCG text logo (replaces PICS image)
+ * ============================================================ */
+.c-loading .loading-logo {
+  font-family: "PICSConduit", "Saira Condensed", "Bebas Neue", sans-serif;
+  font-style: italic;
+  font-weight: 700;
+  font-size: 40px;
+  line-height: 1;
+  letter-spacing: .06em;
+  color: var(--fg);
+  white-space: nowrap;
+}
+
+/* ============================================================
  * Header — reserve space on the right for the hamburger trigger
  * ============================================================ */
 .c-header {
