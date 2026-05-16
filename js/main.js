@@ -58,7 +58,7 @@
     const ratio = max > 0 ? scroller.scrollLeft / max : 0;
     if (bar && baseBar) bar.style.width = (ratio * baseBar.offsetWidth) + 'px';
     if (segLabel) {
-      const total = 9;
+      const total = 6;
       const seg = Math.min(total, Math.max(1, Math.round(ratio * (total - 1)) + 1));
       segLabel.textContent = String(seg).padStart(2, '0') + ' / ' + String(total).padStart(2, '0');
     }
@@ -173,6 +173,93 @@
     });
     refresh();
   }
+
+  // ===== 6.4 Menu description panel — content syncs with horizontal scroll =====
+  (function bindMenuDescPanel() {
+    const panel = document.querySelector('.menu-desc-panel');
+    if (!panel) return;
+    const scroller = document.querySelector('.p-top');
+    if (!scroller) return;
+    const fields = {
+      num:   panel.querySelector('[data-field="num"]'),
+      jp:    panel.querySelector('[data-field="jp"]'),
+      label: panel.querySelector('[data-field="label"]'),
+      desc:  panel.querySelector('[data-field="desc"]'),
+    };
+    const hero  = document.querySelector('.top_hero');
+    const items = () => document.querySelectorAll('.menu-item');
+    const pad2  = (n) => String(n).padStart(2, '0');
+    let lastIdx = -2;
+    // The WebGL canvas sits exactly at the lens center (same transform), so
+    // we can use its rect as the "lens center" reference point.
+    const canvasEl = document.getElementById('canvasContainer');
+    function lensCenterX() {
+      if (canvasEl) {
+        const r = canvasEl.getBoundingClientRect();
+        if (r.width > 0) return r.left + r.width / 2;
+      }
+      return window.innerWidth / 2;
+    }
+    // Visibility window for menu items: based on the visible lens diameter
+    // (#canvasContainer is 72vmin). Items whose center falls inside this
+    // radius around the lens center are shown; others fade out.
+    function lensVisibleRadius() {
+      if (canvasEl) {
+        const r = canvasEl.getBoundingClientRect();
+        if (r.width > 0) return r.width * 0.6; // a touch wider than the disc
+      }
+      return Math.min(window.innerWidth, window.innerHeight) * 0.4;
+    }
+    function update() {
+      const cx = lensCenterX();
+      const lensR = lensVisibleRadius();
+      const list = items();
+      // Toggle per-item visibility — only items near the lens center stay lit
+      list.forEach((el) => {
+        const r = el.getBoundingClientRect();
+        const c = r.left + r.width / 2;
+        const dist = Math.abs(c - cx);
+        el.classList.toggle('is-in-lens', dist < lensR);
+      });
+      // Still on the hero (its right edge hasn't crossed the lens center)
+      if (hero) {
+        const hr = hero.getBoundingClientRect();
+        if (hr.right > cx) {
+          if (lastIdx !== -1) {
+            panel.classList.remove('is-visible');
+            panel.setAttribute('aria-hidden', 'true');
+            lastIdx = -1;
+          }
+          return;
+        }
+      }
+      // Pick the menu item whose center is closest to the lens center
+      let bestIdx = -1, bestDist = Infinity;
+      list.forEach((el) => {
+        const r = el.getBoundingClientRect();
+        const c = r.left + r.width / 2;
+        const d = Math.abs(c - cx);
+        if (d < bestDist) { bestDist = d; bestIdx = parseInt(el.dataset.idx, 10); }
+      });
+      if (bestIdx === -1 || !window.MENU_ITEMS) return;
+      const data = window.MENU_ITEMS[bestIdx];
+      if (!data) return;
+      if (bestIdx !== lastIdx) {
+        if (fields.num)   fields.num.textContent   = pad2(data.i);
+        if (fields.jp)    fields.jp.textContent    = data.jp;
+        if (fields.label) fields.label.textContent = data.label;
+        if (fields.desc)  fields.desc.textContent  = data.desc;
+        lastIdx = bestIdx;
+      }
+      panel.classList.add('is-visible');
+      panel.setAttribute('aria-hidden', 'false');
+    }
+    scroller.addEventListener('scroll', update, { passive: true });
+    window.addEventListener('resize', update);
+    // Initial pass after layout settles
+    setTimeout(update, 200);
+    setTimeout(update, 800);
+  })();
 
   // ===== 6.5 Lens intro: flag body when the opening animation finishes =====
   const lensImg = document.querySelector('.lens-stage__img');

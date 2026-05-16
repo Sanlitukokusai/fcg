@@ -95,46 +95,152 @@ html.is-sub body {
 }
 .menu-item:last-child { margin-right: 64px; }
 
+.menu-item {
+  /* Hidden by default — only the item closest to the lens center fades in,
+     others fade out as they drift out of the viewport "lens window". */
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity .45s var(--ease-out-circ);
+}
+.menu-item.is-in-lens {
+  opacity: 1;
+  pointer-events: auto;
+}
+
 .menu-item__link {
   position: relative;
-  display: flex !important;        /* override main.css "display:block" */
-  flex-direction: column;
+  display: inline-flex !important;
   align-items: flex-start;
-  justify-content: flex-end;
-  height: 100% !important;
+  gap: 14px;
+  height: auto !important;
   text-decoration: none;
   isolation: isolate;
+  font-family: var(--font-display-sans);  /* Space Grotesk */
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  line-height: 1;
+  text-transform: uppercase;
+  color: var(--color-fg);
 }
 .menu-item__num {
   font-family: var(--font-mono);
+  font-weight: 400;
   font-size: 11px;
   letter-spacing: .18em;
-  color: var(--color-fg);
+  color: var(--dim);
   line-height: 1;
-  margin-bottom: 10px;
+  margin-top: 12px;            /* align with capital height of label */
   font-variant-numeric: tabular-nums;
 }
 .menu-item__word {
-  font-family: "PICSConduit", "Saira Condensed", "Oswald", var(--font-display-sans);
-  font-weight: 700;
-  font-style: italic;
-  font-size: clamp(72px, 8vw, 112px);
-  line-height: 0.85;
-  letter-spacing: 0.005em;
+  position: relative;
+  display: inline-block;
+  font-size: clamp(48px, 6.4vw, 96px);
+  line-height: 0.95;
   color: var(--color-fg);
-  -webkit-text-stroke: 0px var(--color-fg);
-  paint-order: stroke fill;
   transition:
-    color .45s var(--ease-out-circ),
-    -webkit-text-stroke-width .45s var(--ease-out-circ);
-  /* small visual lift to compensate italic baseline */
-  transform: translateY(0.02em);
+    color .35s var(--ease-out-circ),
+    -webkit-text-stroke-width .35s var(--ease-out-circ);
+}
+.menu-item__jp {
+  display: block;
+  font-family: var(--font-jp);
+  font-weight: 400;
+  font-style: normal;
+  /* relative to .menu-item__word so it stays proportional */
+  font-size: 0.18em;
+  letter-spacing: .08em;
+  color: var(--dim);
+  margin-top: 14px;
+  text-transform: none;
 }
 .menu-item__link:hover .menu-item__word,
 .menu-item__link.is-hover .menu-item__word,
 .menu-item__link:focus-visible .menu-item__word {
   color: transparent;
-  -webkit-text-stroke-width: 1px;
+  -webkit-text-stroke: 1px var(--color-fg);
+  paint-order: stroke fill;
+}
+.menu-item__link:hover .menu-item__jp,
+.menu-item__link.is-hover .menu-item__jp,
+.menu-item__link:focus-visible .menu-item__jp {
+  color: var(--fg);
+}
+
+/* ============================================================
+ * Menu description panel — fixed left, content syncs with scroll
+ * (Hidden until the user scrolls past the hero and a menu item
+ * approaches the lens center.)
+ * ============================================================ */
+.menu-desc-panel {
+  position: fixed;
+  top: 50%;
+  left: 0;
+  transform: translateY(-50%);
+  width: clamp(320px, 36vw, 540px);
+  padding: 0 24px 0 95px;
+  z-index: 11;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity .4s var(--ease-hover);
+  color: var(--fg);
+}
+.menu-desc-panel.is-visible { opacity: 1; }
+.menu-desc-panel__crumb {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-family: var(--font-mono);
+  font-size: 11px;
+  letter-spacing: .18em;
+  color: var(--dim);
+  text-transform: uppercase;
+  margin-bottom: 18px;
+}
+.menu-desc-panel__crumb i {
+  font-style: normal;
+  color: var(--dimmer);
+  font-size: 14px;
+  line-height: 1;
+}
+.menu-desc-panel__label {
+  font-family: var(--font-display-sans);
+  font-weight: 700;
+  font-size: clamp(44px, 5.4vw, 78px);
+  line-height: 0.95;
+  letter-spacing: -0.02em;
+  margin: 0 0 14px;
+  color: var(--fg);
+}
+.menu-desc-panel__body {
+  font-family: var(--font-jp);
+  font-weight: 400;
+  font-size: clamp(15px, 1.4vw, 19px);
+  line-height: 1.75;
+  letter-spacing: .02em;
+  color: var(--fg);
+  margin: 0 0 22px;
+  max-width: 22em;
+}
+.menu-desc-panel__hint {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  font-family: var(--font-mono);
+  font-size: 10px;
+  letter-spacing: .22em;
+  color: var(--dim);
+}
+@media (max-width: 900px) {
+  .menu-desc-panel {
+    top: auto;
+    bottom: 96px;
+    transform: none;
+    width: 100%;
+    padding: 0 24px;
+  }
+  .menu-desc-panel__label { font-size: 32px; }
+  .menu-desc-panel__body  { font-size: 14px; }
 }
 
 /* When NOT hovering the nav at all, all items solid (default).

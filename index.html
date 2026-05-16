@@ -50,6 +50,16 @@
     </nav>
   </header>
 
+  <!-- ============ Menu description panel (fixed left, syncs with scroll) ============ -->
+  <aside class="menu-desc-panel" aria-live="polite" aria-hidden="true">
+    <div class="menu-desc-panel__crumb"><span data-field="num">—</span><i>·</i><span data-field="jp">FCG</span></div>
+    <h2 class="menu-desc-panel__label" data-field="label">—</h2>
+    <p class="menu-desc-panel__body" data-field="desc">—</p>
+    <div class="menu-desc-panel__hint">
+      <span>SCROLL →</span>
+    </div>
+  </aside>
+
   <!-- ============ Lens background stage (opening intro) ============ -->
   <div class="lens-stage" aria-hidden="true">
     <div class="lens-stage__img"></div>
@@ -98,7 +108,7 @@
               <span class="base_bar"></span>
               <span class="bar"></span>
             </span>
-            <span id="scrollSeg" class="seg">01 / 09</span>
+            <span id="scrollSeg" class="seg">01 / 06</span>
           </div>
           <div class="hover">
             <span class="scroll"><img src="img/ui/scroll2.png" alt="DRAG"></span>
@@ -216,26 +226,24 @@
      Hover gives outlined-letter effect via -webkit-text-stroke,
      letting the WebGL water-droplet show through the letterforms. */
   const MENU_ITEMS = [
-    { i: 1, label: 'NEWS',    href: 'news.html'    },
-    { i: 2, label: 'WORKS',   href: '#'            },
-    { i: 3, label: 'MEMBER',  href: 'member.html'  },
-    { i: 4, label: 'CREATOR', href: '#'            },
-    { i: 5, label: 'COMPANY', href: 'company.html' },
-    { i: 6, label: 'TECH',    href: '#'            },
-    { i: 7, label: 'LIVE',    href: '#'            },
-    { i: 8, label: 'ST',      href: '#'            },
-    { i: 9, label: 'C4N',     href: '#'            },
+    { i: 1, label: 'NEWS',    jp: 'ニュース',     desc: '最新のお知らせ、新作のリリース、受賞情報。スタジオの最新の動きをここからお伝えします。',                            href: 'news.html'    },
+    { i: 2, label: 'WORKS',   jp: 'ワークス',     desc: '短編映画、ミュージックビデオ、ブランドフィルム。FCG が監督・制作した作品の一覧。',                                  href: '#'            },
+    { i: 3, label: 'MEMBER',  jp: 'メンバー',     desc: 'ディレクター、エンジニア、プロデューサー — スタジオを構成するメンバーの紹介と役割。',                                href: 'member.html'  },
+    { i: 4, label: 'CREATOR', jp: 'クリエイター', desc: 'FCG と協働するクリエイターたち。撮影、編集、サウンド、ヴィジュアル開発などのコラボレーター。',                       href: '#'            },
+    { i: 5, label: 'COMPANY', jp: '会社情報',     desc: 'FCG という会社について。理念、所在地、代表ディレクター、事業内容を掲載しています。',                              href: 'company.html' },
+    { i: 6, label: 'TECH',    jp: 'テック',       desc: 'カスタム拡散モデル、Houdini、コンポジット — FCG が開発・運用する生成 AI 映像のためのテクノロジースタック。',          href: '#'            },
   ];
+  window.MENU_ITEMS = MENU_ITEMS;
 
   const pad = (n) => String(n).padStart(2, '0');
   const ul = document.querySelector('#topNav ul');
-  ul.innerHTML = MENU_ITEMS.map(({ i, label, href }) => {
+  ul.innerHTML = MENU_ITEMS.map(({ i, label, jp, desc, href }) => {
     const dataPage = href.endsWith('.html') ? ' data-page' : '';
     return `
-      <li class="menu-item">
-        <a href="${href}"${dataPage} class="menu-item__link" aria-label="${pad(i)} ${label}">
+      <li class="menu-item" data-idx="${i - 1}">
+        <a href="${href}"${dataPage} class="menu-item__link" aria-label="${pad(i)} ${label} / ${jp}">
           <span class="menu-item__num">${pad(i)}</span>
-          <span class="menu-item__word">${label}</span>
+          <span class="menu-item__word">${label}<span class="menu-item__jp">${jp}</span></span>
         </a>
       </li>
     `;
