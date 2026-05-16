@@ -49,7 +49,8 @@
     uVideo:     { value: fallbackTex },
     uVideoMode: { value: 0.0 },
     uHoverPos:  { value: new THREE.Vector2(0, 0) }, // NDC-space center bias
-    uHover:     { value: 0 }                        // 0..1 strength of follow
+    uHover:     { value: 0 },                       // 0..1 strength of follow
+    uInvert:    { value: 0 }                        // 0 = dark theme, 1 = light theme
   };
 
   const vertSrc = `
@@ -72,6 +73,7 @@
     uniform float uVideoMode;
     uniform vec2  uHoverPos;
     uniform float uHover;
+    uniform float uInvert;
 
     float hash(vec2 p){ return fract(sin(dot(p, vec2(127.1,311.7)))*43758.5453); }
     float vnoise(vec2 p){
@@ -171,7 +173,14 @@
       float r = length(p);
       col *= 0.85 + 0.18*(1.0 - smoothstep(0.0, 0.45, r));
 
-      // NOTE: black-bg site → keep positive output. (No 1.0-col inversion.)
+      // Light-theme invert: paint the blob as a pink/purple watercolor wash
+      // instead of plain inverted grayscale (matches the OBSIDIAN reference).
+      vec3 invCol  = 1.0 - col;
+      float ink    = (invCol.r + invCol.g + invCol.b) / 3.0;
+      vec3 paleHi  = vec3(0.97, 0.92, 0.95);  // near-white pink at low ink
+      vec3 deepLo  = vec3(0.42, 0.18, 0.48);  // deep magenta-purple at high ink
+      vec3 lightTinted = mix(paleHi, deepLo, ink);
+      col = mix(col, lightTinted, uInvert);
       gl_FragColor = vec4(col, m);
     }
   `;
@@ -325,4 +334,12 @@
 
   // Auto-load from default if specified
   if (state.videoSrc) window.fcgSetVideo(state.videoSrc);
+
+  // ── Theme sync: respond to light/dark toggle from main.js ──
+  window.addEventListener('fcg:theme', (e) => {
+    uniforms.uInvert.value = e.detail && e.detail.light ? 1.0 : 0.0;
+  });
+  // Pick up the initial state synchronously too (in case the event fired before
+  // this script attached its listener).
+  if (document.body.classList.contains('is-light')) uniforms.uInvert.value = 1.0;
 })();

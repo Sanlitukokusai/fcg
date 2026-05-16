@@ -162,6 +162,105 @@ html.is-sub body {
 }
 
 /* ============================================================
+ * Light theme — body.is-light flips the two-tone palette
+ * ============================================================ */
+body.is-light {
+  --color-bg:         #ffffff;
+  --color-fg:         #000000;
+  --color-muted:      #555555;
+  --color-divider:    #cccccc;
+  --color-fg-40:      rgba(0, 0, 0, 0.4);
+  --color-mark-faint: rgba(0, 0, 0, 0.06);
+
+  --bg:     #ffffff;
+  --fg:     #000000;
+  --dim:    rgba(0, 0, 0, 0.55);
+  --dimmer: rgba(0, 0, 0, 0.22);
+  --hair:   rgba(0, 0, 0, 0.14);
+}
+body.is-light .c-loading { background: #fff; }
+body.is-light .c-cover   { background: #fff; }
+body.is-light .c-gnav    { background: #fff; }
+
+/* ============================================================
+ * GNAV back / close button (top-left, inside the overlay)
+ * ============================================================ */
+.c-gnav__back {
+  position: absolute;
+  top: 18px;
+  left: 110px;            /* clear the 90px SNS column + its divider line */
+  z-index: 5;
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  height: 32px;
+  padding: 0 14px 0 12px;
+  border: 1px solid var(--hair);
+  border-radius: 16px;
+  background: transparent;
+  color: var(--fg);
+  font-family: var(--font-mono);
+  font-size: 11px;
+  letter-spacing: .18em;
+  cursor: pointer;
+  opacity: 0;
+  transform: translateX(-8px);
+  pointer-events: none;
+  transition:
+    opacity .35s var(--ease-hover) .15s,
+    transform .35s var(--ease-hover) .15s,
+    background .25s var(--ease-hover),
+    color .25s var(--ease-hover),
+    border-color .25s var(--ease-hover);
+}
+body.is-gnav .c-gnav__back {
+  opacity: 1;
+  transform: translateX(0);
+  pointer-events: auto;
+}
+.c-gnav__back .arrow {
+  font-size: 14px;
+  line-height: 1;
+  transition: transform .3s var(--ease-hover);
+}
+.c-gnav__back:hover {
+  background: var(--fg);
+  color: var(--bg);
+  border-color: var(--fg);
+}
+.c-gnav__back:hover .arrow { transform: translateX(-3px); }
+
+/* ============================================================
+ * Theme toggle button (fixed top-left)
+ * ============================================================ */
+.theme-toggle {
+  position: fixed;
+  bottom: 16px;
+  left: 16px;
+  z-index: 1100;
+  min-width: 58px;
+  height: 30px;
+  padding: 0 12px;
+  border-radius: 15px;
+  background: var(--bg);
+  border: 1px solid var(--hair);
+  color: var(--fg);
+  font-family: var(--font-mono);
+  font-size: 10px;
+  letter-spacing: .16em;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: background .25s var(--ease-hover), color .25s var(--ease-hover), border-color .25s var(--ease-hover);
+}
+.theme-toggle:hover {
+  background: var(--fg);
+  color: var(--bg);
+  border-color: var(--fg);
+}
+
+/* ============================================================
  * Loading overlay — FCG text logo (replaces PICS image)
  * ============================================================ */
 .c-loading .loading-logo {
@@ -907,6 +1006,7 @@ body.is-gnav .c-gnav {
   body.is-gnav .c-gnav__trigger .line:nth-child(3) { top: 23px; }
 
   .c-gnav { grid-template-columns: 64px 1fr; }
+  .c-gnav__back { left: 80px; }
   .c-gnav__body {
     grid-template-columns: 1fr;
     padding: 90px 24px 32px 24px;
@@ -938,4 +1038,112 @@ body.is-gnav .c-gnav {
   .p-contact__wrap  { grid-template-columns: 1fr; gap: 48px; }
 
   #tweaks { right: 12px; bottom: 70px; width: 240px; }
+}
+
+/* ============================================================
+ * Top hero (homepage first panel, inline with horizontal scroll)
+ * ============================================================ */
+.p-top__wrap { display: flex; align-items: stretch; }
+.top_hero {
+  position: relative;
+  z-index: 10;
+  flex: 0 0 100vw;
+  height: 100%;
+  padding: 0 8vw 0 95px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: 22px;
+  color: var(--fg);
+}
+.top_hero__crumb {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-family: var(--font-mono);
+  font-size: 11px;
+  letter-spacing: .18em;
+  color: var(--dim);
+  text-transform: uppercase;
+}
+.top_hero__crumb i {
+  font-style: normal;
+  color: var(--dimmer);
+  font-size: 14px;
+  line-height: 1;
+}
+
+.top_hero__lead {
+  font-family: var(--font-jp);
+  font-weight: 500;
+  font-size: clamp(22px, 2.6vw, 38px);
+  line-height: 1.55;
+  letter-spacing: .02em;
+  max-width: 560px;
+  margin: 0;
+  color: var(--fg);
+}
+.top_hero__lead .u {
+  border-bottom: 1px solid var(--fg);
+  padding-bottom: 1px;
+}
+
+.top_hero__rule {
+  border: 0;
+  border-top: 1px solid var(--hair);
+  width: 120px;
+  margin: 8px 0 4px;
+}
+
+.top_hero__meta {
+  display: grid;
+  grid-template-columns: 70px 1fr;
+  row-gap: 6px;
+  column-gap: 18px;
+  margin: 0;
+  font-family: var(--font-mono);
+  font-size: 11px;
+  letter-spacing: .14em;
+  align-items: baseline;
+}
+.top_hero__meta dt {
+  color: var(--dim);
+  text-transform: uppercase;
+}
+.top_hero__meta dd {
+  margin: 0;
+  color: var(--fg);
+  font-weight: 600;
+}
+
+.top_hero__hint {
+  margin-top: 28px;
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  font-family: var(--font-mono);
+  font-size: 10px;
+  letter-spacing: .22em;
+  color: var(--dim);
+}
+.top_hero__hint .jp {
+  font-family: var(--font-jp);
+  letter-spacing: .04em;
+  font-size: 11px;
+}
+
+/* Keep the existing nav centered in the same flow */
+.top_nav {
+  flex: 0 0 auto;
+}
+
+@media (max-width: 900px) {
+  .top_hero {
+    flex: 0 0 100vw;
+    padding: 80px 24px 24px;
+    justify-content: flex-start;
+    gap: 16px;
+  }
+  .top_hero__lead { font-size: 22px; line-height: 1.6; }
+  .top_hero__meta { grid-template-columns: 60px 1fr; font-size: 10px; }
 }

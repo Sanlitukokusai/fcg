@@ -95,6 +95,17 @@
     if (e.key === 'Escape') document.body.classList.remove('is-gnav');
   });
 
+  // Back button inside c-gnav (top-left), closes the overlay
+  const gnav = $('#gnav') || $('.c-gnav');
+  if (gnav && !gnav.querySelector('.c-gnav__back')) {
+    const back = document.createElement('button');
+    back.className = 'c-gnav__back';
+    back.setAttribute('aria-label', '閉じる / Close menu');
+    back.innerHTML = '<span class="arrow">←</span><span class="lbl">BACK</span>';
+    back.addEventListener('click', () => document.body.classList.remove('is-gnav'));
+    gnav.appendChild(back);
+  }
+
   // ===== 5. Page-cover transitions for internal links =====
   const cover = $('.c-cover');
   function pageCover(href) {
@@ -158,4 +169,32 @@
     });
     refresh();
   }
+
+  // ===== 7. Theme toggle (light / dark) =====
+  (function initThemeToggle() {
+    const KEY = 'fcg-theme';
+    const saved = localStorage.getItem(KEY);
+    if (saved === 'light') document.body.classList.add('is-light');
+
+    const btn = document.createElement('button');
+    btn.className = 'theme-toggle';
+    btn.setAttribute('aria-label', 'Toggle light / dark theme');
+    const setLabel = () => {
+      btn.textContent = document.body.classList.contains('is-light') ? 'DARK' : 'LIGHT';
+    };
+    setLabel();
+    btn.addEventListener('click', () => {
+      const nowLight = !document.body.classList.contains('is-light');
+      document.body.classList.toggle('is-light', nowLight);
+      localStorage.setItem(KEY, nowLight ? 'light' : 'dark');
+      setLabel();
+      // Notify WebGL stage so the shader can invert its output
+      window.dispatchEvent(new CustomEvent('fcg:theme', { detail: { light: nowLight } }));
+    });
+    document.body.appendChild(btn);
+    // Fire once on load so WebGL picks up persisted state
+    window.dispatchEvent(new CustomEvent('fcg:theme', {
+      detail: { light: document.body.classList.contains('is-light') }
+    }));
+  })();
 })();
