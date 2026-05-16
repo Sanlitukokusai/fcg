@@ -81,7 +81,11 @@
   const t0 = performance.now();
   window.addEventListener('load', () => {
     const wait = Math.max(0, MIN_LOADING_MS - (performance.now() - t0));
-    setTimeout(() => loading && loading.classList.add('is-hidden'), wait);
+    setTimeout(() => {
+      loading && loading.classList.add('is-hidden');
+      // Trigger the lens intro animation only after the loading curtain lifts
+      document.body.classList.add('is-loaded');
+    }, wait);
   });
 
   // ===== 4. Burger ↔ c-gnav overlay =====
@@ -168,6 +172,15 @@
       }
     });
     refresh();
+  }
+
+  // ===== 6.5 Lens intro: flag body when the opening animation finishes =====
+  const lensImg = document.querySelector('.lens-stage__img');
+  if (lensImg) {
+    const onDone = () => document.body.classList.add('lens-ready');
+    lensImg.addEventListener('animationend', onDone, { once: true });
+    // Safety net in case animationend doesn't fire (tab not focused, etc.)
+    setTimeout(onDone, 3500);
   }
 
   // ===== 7. Theme toggle (light / dark) =====

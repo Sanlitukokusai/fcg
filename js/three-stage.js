@@ -50,7 +50,8 @@
     uVideoMode: { value: 0.0 },
     uHoverPos:  { value: new THREE.Vector2(0, 0) }, // NDC-space center bias
     uHover:     { value: 0 },                       // 0..1 strength of follow
-    uInvert:    { value: 0 }                        // 0 = dark theme, 1 = light theme
+    uInvert:    { value: 0 },                       // 0 = dark theme, 1 = light theme
+    uFillCircle:{ value: 0 }                        // 1 on homepage → fill the whole canvas
   };
 
   const vertSrc = `
@@ -74,6 +75,7 @@
     uniform vec2  uHoverPos;
     uniform float uHover;
     uniform float uInvert;
+    uniform float uFillCircle;
 
     float hash(vec2 p){ return fract(sin(dot(p, vec2(127.1,311.7)))*43758.5453); }
     float vnoise(vec2 p){
@@ -153,34 +155,44 @@
 
     void main(){
       vec2 p  = ndc(vUv);
-      // Shift the mask origin toward the hovered menu item (uHoverPos in NDC).
-      // 0.85 = under-pull so it leans toward but doesn't fully sit on the item.
       vec2 pm = p + vec2(uShift.x*0.04, 0.0) - uHoverPos * (uHover * 0.85);
       float m = getMask(pm);
+      // Homepage fill mode: ignore the irregular blob mask and fill the
+      // whole (CSS-rounded) canvas as one clean circle.
+      m = mix(m, 1.0, uFillCircle);
 
+      // Procedural placeholder ── only this gets the light-mode pink wash
       vec3 proc = procTex(vUv);
+      vec3 procInv  = 1.0 - proc;
+      float procInk = (procInv.r + procInv.g + procInv.b) / 3.0;
+      vec3 procWash = mix(vec3(0.97, 0.92, 0.95), vec3(0.42, 0.18, 0.48), procInk);
+      proc = mix(proc, procWash, uInvert);
+
+      // Real video texture ── shown as-is (no inversion, no wash)
       vec2 vidUv = vUv + vec2(uShift.x*0.06, 0.0);
-      vec3 vid  = texture2D(uVideo, vidUv).rgb;
-      vec3 col  = mix(proc, vid, uVideoMode);
+      vec3 vid   = texture2D(uVideo, vidUv).rgb;
 
-      // film grain
-      col += (hash(vUv*1000.0 + uTime) - 0.5) * 0.05;
+      // Final color: procedural until video kicks in
+      vec3 col = mix(proc, vid, uVideoMode);
 
-      // accent tint (off by default → strictly monochrome)
+      // Film grain only on the procedural placeholder
+      col += (hash(vUv*1000.0 + uTime) - 0.5) * 0.04 * (1.0 - uVideoMode);
+
+      // Accent tint (off by default)
       col = mix(col, col*uAccent, uAccentOn);
 
-      // gentle edge falloff
+      // Very subtle vignette
       float r = length(p);
-      col *= 0.85 + 0.18*(1.0 - smoothstep(0.0, 0.45, r));
+      col *= 0.94 + 0.06*(1.0 - smoothstep(0.0, 0.45, r));
 
-      // Light-theme invert: paint the blob as a pink/purple watercolor wash
-      // instead of plain inverted grayscale (matches the OBSIDIAN reference).
-      vec3 invCol  = 1.0 - col;
-      float ink    = (invCol.r + invCol.g + invCol.b) / 3.0;
-      vec3 paleHi  = vec3(0.97, 0.92, 0.95);  // near-white pink at low ink
-      vec3 deepLo  = vec3(0.42, 0.18, 0.48);  // deep magenta-purple at high ink
-      vec3 lightTinted = mix(paleHi, deepLo, ink);
-      col = mix(col, lightTinted, uInvert);
+      // Homepage flat-color placeholder (only when no video is playing)
+      vec3 flatFill = mix(
+        vec3(0.88, 0.88, 0.92),   // dark theme  → soft pearl
+        vec3(0.48, 0.22, 0.52),   // light theme → muted purple
+        uInvert
+      );
+      col = mix(col, flatFill, uFillCircle * (1.0 - uVideoMode));
+
       gl_FragColor = vec4(col, m);
     }
   `;
@@ -295,12 +307,15 @@
   applyTweaks();
 
   /* ── Video swap API ──
-     fcgSetVideo('/path/to/file.mp4')  → use VideoTexture
-     fcgSetVideo(null)                 → revert to procedural shader
+     fcgSetVideo('/path/to/file.mp4')           → use VideoTexture (looping)
+     fcgSetVideo('…', { loop: false, onEnded }) → play once, then callback
+     fcgSetVideo(null)                          → revert to procedural shader
   */
-  window.fcgSetVideo = function (src) {
+  window.fcgSetVideo = function (src, opts) {
+    opts = opts || {};
     if (videoEl) {
       videoEl.pause();
+      videoEl.onended = null;
       videoEl.removeAttribute('src');
       videoEl.load();
       videoEl = null;
@@ -316,24 +331,69 @@
       return;
     }
     videoEl = document.createElement('video');
-    videoEl.src         = src;
-    videoEl.crossOrigin = 'anonymous';
-    videoEl.loop        = true;
-    videoEl.muted       = true;
+    videoEl.muted       = true;       // must be set BEFORE src for autoplay
     videoEl.playsInline = true;
+    videoEl.loop        = opts.loop !== false;       // default true
     videoEl.autoplay    = true;
-    videoEl.play().catch(() => { /* iOS may need a user gesture */ });
+    videoEl.preload     = 'auto';
+    // Cross-origin URLs (e.g. Supabase Storage) need crossOrigin so the
+    // texture is sampleable by WebGL. Same-origin local files skip it
+    // because Python's http.server emits no CORS headers.
+    if (/^https?:\/\//i.test(src)) {
+      videoEl.crossOrigin = 'anonymous';
+    }
+    videoEl.src = src;
+    if (typeof opts.onEnded === 'function') {
+      videoEl.addEventListener('ended', opts.onEnded);
+    }
+    videoEl.addEventListener('error', () => {
+      console.warn('[fcg] video failed to load:', src, videoEl.error);
+    });
+    videoEl.addEventListener('loadeddata', () => {
+      console.log('[fcg] video loaded:', src, videoEl.videoWidth + 'x' + videoEl.videoHeight);
+    });
+    videoEl.play().catch((err) => {
+      console.warn('[fcg] video autoplay blocked:', src, err);
+    });
     videoTex = new THREE.VideoTexture(videoEl);
     videoTex.minFilter = THREE.LinearFilter;
     videoTex.magFilter = THREE.LinearFilter;
-    videoTex.format    = THREE.RGBFormat;
+    // THREE.RGBFormat was removed in r158 — default RGBA is fine.
     uniforms.uVideo.value     = videoTex;
     uniforms.uVideoMode.value = 1.0;
     state.videoSrc = src;
   };
 
+  // ── Cycle through a playlist (each clip plays once, then advances) ──
+  window.fcgCycleVideos = function (urls) {
+    if (!urls || urls.length === 0) return;
+    let idx = 0;
+    const advance = () => {
+      idx = (idx + 1) % urls.length;
+      window.fcgSetVideo(urls[idx], { loop: false, onEnded: advance });
+    };
+    // If only one URL, just loop it normally.
+    if (urls.length === 1) {
+      window.fcgSetVideo(urls[0]);
+    } else {
+      window.fcgSetVideo(urls[0], { loop: false, onEnded: advance });
+    }
+  };
+
   // Auto-load from default if specified
   if (state.videoSrc) window.fcgSetVideo(state.videoSrc);
+
+  // ── Homepage: fill the circular viewport + start the demo playlist ──
+  if (document.documentElement.classList.contains('is-home')) {
+    uniforms.uFillCircle.value = 1.0;
+    // Hero loop clips, hosted on Supabase Storage (bucket: fcg-videos).
+    // Swap or extend the list here — the playlist auto-cycles.
+    const FCG_VIDEO_CDN = 'https://wfstwbeehomzdudvikbt.supabase.co/storage/v1/object/public/fcg-videos';
+    window.fcgCycleVideos([
+      FCG_VIDEO_CDN + '/v1.mp4',
+      FCG_VIDEO_CDN + '/v2.mp4'
+    ]);
+  }
 
   // ── Theme sync: respond to light/dark toggle from main.js ──
   window.addEventListener('fcg:theme', (e) => {

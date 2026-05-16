@@ -1041,6 +1041,83 @@ body.is-gnav .c-gnav {
 }
 
 /* ============================================================
+ * Lens background stage — opening intro (large → small)
+ *
+ *   1. .lens-stage fills the viewport, behind everything.
+ *   2. .lens-stage__img is a square layer that paints lens.jpg
+ *      (the aperture is centered in the source image).
+ *      It starts at scale 3 — only the dark aperture fills the
+ *      screen — then eases down to scale 1 to reveal the full lens.
+ *   3. The WebGL canvas is clipped to a circle (.has-lens body class)
+ *      so the procedural blob / future VideoTexture only shows
+ *      *inside* the aperture, like looking through the glass.
+ * ============================================================ */
+.lens-stage {
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  overflow: hidden;
+  /* No solid bg — let the page bg show around the round lens */
+  background: transparent;
+}
+.lens-stage__img {
+  position: absolute;
+  /* Square layer — bumped up + nudged right per request. */
+  top: 50%;
+  left: 50%;
+  width: 135vmin;
+  height: 135vmin;
+  background: url("../img/bg/lens.jpg") center / cover no-repeat;
+  /* Crop the surrounding dark photo backdrop — keep the full lens
+     visible (outer ring with text + inner aperture). */
+  clip-path: circle(33.8% at 50% 50%);
+  transform: translate(calc(-50% + 250px), -50%) scale(3.2);
+  opacity: 0;
+}
+body.is-loaded .lens-stage__img {
+  animation: lensIntro 2.8s cubic-bezier(0.77, 0, 0.355, 1) 0.15s forwards;
+}
+@keyframes lensIntro {
+  0%   { transform: translate(calc(-50% + 250px), -50%) scale(3.2); opacity: 0; }
+  15%  { opacity: 1; }
+  100% { transform: translate(calc(-50% + 250px), -50%) scale(1.0); opacity: 1; }
+}
+/* Settle state — fade-in handled by the scoped rule below */
+
+/* ============================================================
+ * WebGL canvas as the lens "glass" — circular viewport
+ *   Scoped to the homepage (html.is-home) so subpages keep
+ *   their original fullscreen canvas.
+ * ============================================================ */
+html.is-home #canvasContainer {
+  inset: auto;
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  /* Sit inside the lens's inner concentric circle (aperture area) —
+     keeps the outer ring with "Zoom Lens / 50-120 mm / Made in Germany"
+     text visible. Lens visible diameter ≈ 135vmin × 0.66 = 76vmin; the
+     inner aperture is ~60% of that → ~45vmin.
+     Anchored 30px to the right to match the shifted lens. */
+  width: 72vmin;
+  height: 72vmin;
+  transform: translate(calc(-50% + 250px), -50%);
+  border-radius: 50%;
+  overflow: hidden;
+  opacity: 0;
+  transition: opacity 1s var(--ease-hover) 2.5s; /* fade in after intro */
+}
+html.is-home #canvasContainer canvas {
+  width: 100% !important;
+  height: 100% !important;
+}
+html.is-home body.lens-ready #canvasContainer { opacity: 1; }
+
+/* Light theme — softer lens (dim down so it pairs with white page bg) */
+body.is-light .lens-stage__img { filter: brightness(0.78) contrast(0.95); }
+
+/* ============================================================
  * Top hero (homepage first panel, inline with horizontal scroll)
  * ============================================================ */
 .p-top__wrap { display: flex; align-items: stretch; }
@@ -1079,13 +1156,20 @@ body.is-gnav .c-gnav {
   font-size: clamp(22px, 2.6vw, 38px);
   line-height: 1.55;
   letter-spacing: .02em;
-  max-width: 560px;
+  max-width: 760px;
   margin: 0;
   color: var(--fg);
+  /* Keep Japanese clauses on a single line whenever possible */
+  word-break: keep-all;
+  overflow-wrap: normal;
 }
 .top_hero__lead .u {
   border-bottom: 1px solid var(--fg);
   padding-bottom: 1px;
+}
+.top_hero__lead .nb {
+  white-space: nowrap;
+  display: inline-block;
 }
 
 .top_hero__rule {
