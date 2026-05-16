@@ -162,6 +162,13 @@ html.is-sub body {
 }
 
 /* ============================================================
+ * Header — reserve space on the right for the hamburger trigger
+ * ============================================================ */
+.c-header {
+  padding-right: 80px !important;  /* 56px burger + 8px gap + 16px breathing */
+}
+
+/* ============================================================
  * Hamburger 3-span → X
  * ============================================================ */
 .c-gnav__trigger {
