@@ -364,11 +364,20 @@
       return;
     }
     videoEl = document.createElement('video');
-    videoEl.muted       = true;       // must be set BEFORE src for autoplay
+    // iOS Safari is strict: `playsinline` MUST be an HTML attribute, not
+    // just a JS property; same goes for muted/autoplay. Set both forms.
+    videoEl.setAttribute('playsinline', '');
+    videoEl.setAttribute('webkit-playsinline', '');
+    videoEl.setAttribute('muted', '');
+    videoEl.setAttribute('autoplay', '');
+    videoEl.setAttribute('preload', 'auto');
+    videoEl.muted       = true;
+    videoEl.defaultMuted = true;
     videoEl.playsInline = true;
     videoEl.loop        = opts.loop !== false;
     videoEl.autoplay    = true;
     videoEl.preload     = 'auto';
+    videoEl.disableRemotePlayback = true;
     if (/^https?:\/\//i.test(src)) videoEl.crossOrigin = 'anonymous';
     videoEl.src = src;
     if (typeof opts.onEnded === 'function') {

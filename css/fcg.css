@@ -1178,21 +1178,43 @@ body.is-gnav .c-gnav {
   body.is-gnav .c-gnav__trigger .line:nth-child(1) { top: 16px; }
   body.is-gnav .c-gnav__trigger .line:nth-child(3) { top: 16px; }
 
-  .c-gnav { grid-template-columns: 64px 1fr; }
-  .c-gnav__back { left: 80px; }
-  .c-gnav__body {
+  /* Mobile c-gnav: SNS as a horizontal row at the bottom (rotated vertical
+     text in a 64px column collides with the menu labels on narrow phones). */
+  .c-gnav {
     grid-template-columns: 1fr;
-    padding: 90px 24px 32px 24px;
-    gap: 32px;
+    grid-template-rows: 1fr auto;
+  }
+  .c-gnav__body {
+    grid-row: 1;
+    grid-template-columns: 1fr;
+    padding: 88px 24px 24px 24px;
+    gap: 28px;
+  }
+  .c-gnav__sns {
+    grid-row: 2;
+    border-right: 0;
+    border-top: 1px solid var(--hair);
+    flex-direction: row;
+    writing-mode: horizontal-tb;
+    justify-content: center;
+    align-items: center;
+    padding: 16px 24px calc(16px + env(safe-area-inset-bottom, 0px));
+    gap: 22px;
+    font-size: 10px;
   }
   .c-gnav__addr {
     position: relative;
     left: auto; right: auto; bottom: auto;
     flex-direction: column;
     align-items: flex-start;
-    margin-top: 32px;
+    margin-top: 20px;
+    padding-top: 24px;
+    border-top: 1px solid var(--hair);
   }
   .c-gnav__addr .blk + .blk { text-align: left; }
+
+  /* Back-pill sits at top-left of the gnav now that there's no SNS column */
+  .c-gnav__back { left: 20px; top: 20px; }
 
   .p-sub__hero      { grid-template-columns: 1fr; padding: 48px 20px; }
   .p-sub__count     { text-align: left; }
@@ -1853,20 +1875,69 @@ body.is-light .lens-stage__img { filter: brightness(0.78) contrast(0.95); }
 
 /* ---- Mobile ≤ 900 — stack vertically ---- */
 @media (max-width: 900px) {
-  html.is-home { --lens-shift: 0px; --lens-size: 88vmin; --canvas-px: 48vmin; }
+  /* === Lens: pushed hard right so only the LEFT half is visible.
+     Bigger size so the cropped portion still feels substantial. === */
+  html.is-home {
+    --lens-shift: 50vw;
+    --lens-size: 120vmin;
+    --canvas-px: 56vmin;
+  }
+
+  /* === Hero: text strictly on the left half of viewport, vertically
+     centred. Padding tight, font sized to fit a narrow column. === */
   .top_hero {
     flex: 0 0 100vw;
-    padding: 80px 24px 24px;
-    justify-content: flex-start;
-    gap: 14px;
+    padding: 92px 20px 24px;
+    justify-content: center;
+    gap: 12px;
   }
+  .top_hero__crumb  { font-size: 9px; letter-spacing: .14em; }
+  .top_hero__title  { font-size: 11px; line-height: 1.4; }
   .top_hero__lead {
-    font-size: 16px;
+    font-size: 15px;
     line-height: 1.6;
-    max-width: none;
+    max-width: 50vw;        /* stay in the left half */
   }
   .top_hero__lead .nb { white-space: normal; display: inline; }
-  .top_hero__title { font-size: 11px; }
-  .top_hero__meta  { grid-template-columns: 60px 1fr; font-size: 10px; }
-  .lens-service    { font-size: 11px; padding: 6px 12px; }
+  .top_hero__rule   { width: 80px; }
+  .top_hero__meta   {
+    grid-template-columns: 56px 1fr;
+    font-size: 9.5px;
+    max-width: 52vw;
+  }
+  .top_hero__hint   { font-size: 9px; }
+  .top_hero__hint .jp { font-size: 10px; }
+
+  /* === Header: collapse the tagline, drop CONTACT (still reachable via
+     hamburger). Smaller language pills so they fit beside the burger. === */
+  .c-header__logo small { display: none; }
+  .c-header__nav a[data-i18n="header.contact"] { display: none; }
+  .c-header__nav        { gap: 4px; }
+  .lang-pick            { font-size: 9px; padding: 0 8px; height: 26px; letter-spacing: .16em; }
+  .c-header             { padding-right: calc(3vw + 64px) !important; }
+
+  /* === Sound + Theme toggles: smaller so they don't crowd the lens === */
+  .sound-toggle {
+    bottom: 14px;
+    left: 14px;
+    height: 32px;
+    padding: 5px 12px 5px 8px;
+    font-size: 9px;
+    gap: 8px;
+  }
+  .sound-toggle__icon { width: 22px; height: 22px; }
+  .sound-toggle__icon .bar { height: 10px; }
+  .sound-toggle__halo { width: 48px; height: 48px; }
+
+  .theme-toggle {
+    bottom: 14px;
+    right: 14px;
+    width: 110px;
+    height: 34px;
+  }
+  .theme-toggle__opt { font-size: 9px; letter-spacing: .18em; }
+
+  /* Hide the floating service chip on mobile (it's already hidden globally
+     via display:none, but the legacy mobile override is no longer needed). */
+  .lens-service { display: none !important; }
 }

@@ -666,6 +666,32 @@
     window.fcgT = (key) => (T[window.fcgGetLang()] || T.jp)[key];
   })();
 
+  // ===== 6.55 Mobile autoplay unblocker =====
+  // iOS Safari (and some Android browsers) refuse to start <video> playback
+  // — even when muted — until *some* user gesture has happened on the page.
+  // We listen for the very first tap/click anywhere and nudge every paused
+  // video to play. Same call also runs when the sound-prompt buttons fire.
+  (function initMobileAutoplay() {
+    function kickAllVideos() {
+      document.querySelectorAll('video').forEach((v) => {
+        if (v.paused) {
+          // Belt-and-braces: re-apply attributes some browsers need
+          if (!v.hasAttribute('playsinline')) v.setAttribute('playsinline', '');
+          if (!v.hasAttribute('muted'))       v.setAttribute('muted', '');
+          v.muted = true;
+          v.play().catch(() => { /* still blocked, no-op */ });
+        }
+      });
+    }
+    window.fcgKickVideos = kickAllVideos;
+    ['touchend', 'click'].forEach((evt) => {
+      document.addEventListener(evt, function once() {
+        kickAllVideos();
+        document.removeEventListener(evt, once);
+      }, { once: true, passive: true });
+    });
+  })();
+
   // ===== 6.6 Background sound: toggle + first-visit prompt =====
   (function initSound() {
     const audio  = document.getElementById('fcgBgm');
@@ -721,6 +747,9 @@
           prompt.hidden = true;
           if (choice === 'on') setOn();
           else setOff();
+          // The button click is a user gesture — kick any paused <video>
+          // to start playing now (mobile autoplay unblock).
+          if (typeof window.fcgKickVideos === 'function') window.fcgKickVideos();
         });
       });
     }
