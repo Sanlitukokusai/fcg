@@ -67,6 +67,21 @@
     scroller.addEventListener('scroll', updateBar, { passive: true });
     window.addEventListener('resize', updateBar);
     updateBar();
+
+    // Mobile-only: once the user has scrolled past the hero (top 50vh),
+    // flag the body so the fixed lens fades out and stops overlapping
+    // the menu list below.
+    const updatePastHero = () => {
+      if (!isMobile()) {
+        document.body.classList.remove('is-past-hero');
+        return;
+      }
+      const past = scroller.scrollTop > window.innerHeight * 0.5;
+      document.body.classList.toggle('is-past-hero', past);
+    };
+    scroller.addEventListener('scroll', updatePastHero, { passive: true });
+    window.addEventListener('resize', updatePastHero);
+    updatePastHero();
   }
 
   // scroll_ui hover state (def ↔ hover)

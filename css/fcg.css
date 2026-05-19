@@ -1883,10 +1883,28 @@ body.is-light .lens-stage__img { filter: brightness(0.78) contrast(0.95); }
     --canvas-px: 56vmin;
   }
 
-  /* === Hero: text strictly on the left half of viewport, vertically
-     centred. Padding tight, font sized to fit a narrow column. === */
+  /* === Switch to vertical scrolling on mobile: hero on the first
+     screen, menu list below. Lens stays fixed in the viewport. === */
+  .p-top {
+    overflow-x: hidden;
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
+    height: 100vh;
+    width: 100vw;
+  }
+  .p-top__wrap {
+    display: block;
+    width: 100% !important;
+    min-width: 0;
+    height: auto;
+    min-height: 100vh;
+  }
+
+  /* === Hero: text strictly on the left half of viewport === */
   .top_hero {
-    flex: 0 0 100vw;
+    flex: none;
+    width: 100%;
+    height: 100vh;
     padding: 92px 20px 24px;
     justify-content: center;
     gap: 12px;
@@ -1896,7 +1914,12 @@ body.is-light .lens-stage__img { filter: brightness(0.78) contrast(0.95); }
   .top_hero__lead {
     font-size: 15px;
     line-height: 1.6;
-    max-width: 50vw;        /* stay in the left half */
+    max-width: 52vw;
+    /* Force JP/CN to break at every character if needed — keep-all left
+       the long opening clause on one line, bleeding into the lens. */
+    word-break: break-all;
+    overflow-wrap: anywhere;
+    line-break: anywhere;
   }
   .top_hero__lead .nb { white-space: normal; display: inline; }
   .top_hero__rule   { width: 80px; }
@@ -1907,6 +1930,56 @@ body.is-light .lens-stage__img { filter: brightness(0.78) contrast(0.95); }
   }
   .top_hero__hint   { font-size: 9px; }
   .top_hero__hint .jp { font-size: 10px; }
+
+  /* === Vertical menu list below the hero === */
+  .top_nav {
+    margin-top: 0;
+    padding: 40px 24px 120px;
+    flex: none;
+  }
+  .top_nav ul {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 6px;
+    width: 60vw;   /* left side only — lens stays on the right half */
+  }
+  .menu-item {
+    /* Desktop "only one in lens" gating doesn't apply on mobile; show all */
+    opacity: 1 !important;
+    pointer-events: auto !important;
+    height: auto;
+    flex: none;
+  }
+  .menu-item__link {
+    display: flex !important;
+    align-items: baseline;
+    gap: 10px;
+    font-size: 38px;
+    line-height: 1;
+    padding: 10px 0;
+  }
+  .menu-item__num  { font-size: 10px; opacity: .6; }
+  .menu-item__word { font-size: 38px; }
+  .menu-item__jp   { font-size: 10px; margin-left: 8px; opacity: .55; }
+
+  /* Hide the horizontal-scroll progress bar — not meaningful in
+     vertical layout. The c-gnav hamburger is the canonical nav. */
+  .scroll_ui      { display: none; }
+  /* Description panel is also irrelevant on mobile */
+  .menu-desc-panel { display: none; }
+
+  /* When the user scrolls past the hero, fade the fixed lens out so
+     it doesn't sit on top of the menu list. */
+  .lens-stage,
+  html.is-home #canvasContainer,
+  .lens-hot-layer,
+  .lens-clickarea {
+    transition: opacity .35s var(--ease-hover);
+  }
+  body.is-past-hero .lens-stage      { opacity: .18; pointer-events: none; }
+  body.is-past-hero #canvasContainer { opacity: 0 !important; pointer-events: none !important; }
+  body.is-past-hero .lens-hot-layer  { opacity: 0; pointer-events: none; }
+  body.is-past-hero .lens-clickarea  { opacity: 0; pointer-events: none; }
 
   /* === Header: collapse the tagline, drop CONTACT (still reachable via
      hamburger). Smaller language pills so they fit beside the burger. === */
@@ -1937,7 +2010,5 @@ body.is-light .lens-stage__img { filter: brightness(0.78) contrast(0.95); }
   }
   .theme-toggle__opt { font-size: 9px; letter-spacing: .18em; }
 
-  /* Hide the floating service chip on mobile (it's already hidden globally
-     via display:none, but the legacy mobile override is no longer needed). */
   .lens-service { display: none !important; }
 }
