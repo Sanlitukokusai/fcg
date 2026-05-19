@@ -1,0 +1,148 @@
+<!doctype html>
+<html lang="zh-Hans">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>管理后台 · FCG</title>
+  <meta name="robots" content="noindex,nofollow">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&family=Noto+Sans+JP:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/tokens.css">
+  <link rel="stylesheet" href="css/admin.css">
+</head>
+<body class="admin">
+
+<!-- =========== LOGIN VIEW =========== -->
+<div class="admin-login" id="adminLogin">
+  <form class="admin-login__card" id="adminLoginForm">
+    <h1 class="admin-login__brand">F·C·G <small>管理后台</small></h1>
+    <p class="admin-login__sub">登录以管理新闻文章。</p>
+    <label class="admin-field">
+      <span>用户名</span>
+      <input type="text" id="adminUser" autocomplete="username" required>
+    </label>
+    <label class="admin-field">
+      <span>密码</span>
+      <input type="password" id="adminPass" autocomplete="current-password" required>
+    </label>
+    <button type="submit" class="admin-btn admin-btn--primary">登录</button>
+    <div class="admin-login__err" id="adminLoginErr"></div>
+  </form>
+</div>
+
+<!-- =========== ADMIN VIEW =========== -->
+<div class="admin-shell" id="adminShell" hidden>
+  <header class="admin-bar">
+    <div class="admin-bar__brand">F·C·G <small>管理后台 · 新闻</small></div>
+    <div class="admin-bar__right">
+      <span class="admin-bar__user" id="adminBarUser"></span>
+      <a class="admin-btn admin-btn--ghost" href="news.html" target="_blank">查看网站 ↗</a>
+      <button type="button" class="admin-btn admin-btn--ghost" id="adminLogout">登出</button>
+    </div>
+  </header>
+
+  <main class="admin-main">
+    <!-- =========== LIST =========== -->
+    <section class="admin-panel" id="adminListPanel">
+      <header class="admin-panel__head">
+        <h2>新闻文章</h2>
+        <button type="button" class="admin-btn admin-btn--primary" id="adminNew">＋ 新建文章</button>
+      </header>
+      <div class="admin-table-wrap">
+        <table class="admin-table" id="adminTable">
+          <thead>
+            <tr>
+              <th>日期</th>
+              <th>分类</th>
+              <th>标题（日文）</th>
+              <th>状态</th>
+              <th></th>
+            </tr>
+          </thead>
+          <tbody></tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- =========== EDIT =========== -->
+    <section class="admin-panel" id="adminEditPanel" hidden>
+      <header class="admin-panel__head">
+        <h2 id="adminEditTitle">编辑文章</h2>
+        <button type="button" class="admin-btn admin-btn--ghost" id="adminBack">← 返回列表</button>
+      </header>
+      <form class="admin-form" id="adminEditForm">
+        <div class="admin-grid">
+          <label class="admin-field">
+            <span>SLUG <small>(URL 路径，仅小写字母、数字、连字符，唯一)</small></span>
+            <input type="text" id="fSlug" pattern="[a-z0-9-]+" required>
+          </label>
+          <label class="admin-field">
+            <span>分类</span>
+            <select id="fCat" required>
+              <option value="info">资讯 (info)</option>
+              <option value="award">获奖 (award)</option>
+              <option value="release">发布 (release)</option>
+              <option value="press">媒体 (press)</option>
+            </select>
+          </label>
+          <label class="admin-field">
+            <span>发布日期</span>
+            <input type="date" id="fDate" required>
+          </label>
+          <label class="admin-field admin-field--check">
+            <span>状态</span>
+            <label class="admin-check">
+              <input type="checkbox" id="fPublished" checked>
+              <span>已发布（网站可见）</span>
+            </label>
+          </label>
+        </div>
+
+        <fieldset class="admin-fieldset">
+          <legend>封面图</legend>
+          <div class="admin-cover">
+            <div class="admin-cover__preview" id="fCoverPreview">
+              <span>暂无图片</span>
+            </div>
+            <div class="admin-cover__actions">
+              <input type="file" id="fCoverFile" accept="image/jpeg,image/png,image/webp">
+              <button type="button" class="admin-btn admin-btn--ghost" id="fCoverClear">移除封面</button>
+              <input type="text" id="fCoverUrl" placeholder="…或直接粘贴公网图片 URL" class="admin-cover__url">
+            </div>
+          </div>
+        </fieldset>
+
+        <fieldset class="admin-fieldset">
+          <legend>标题</legend>
+          <div class="admin-grid admin-grid--3">
+            <label class="admin-field"><span>日文 <em>*</em></span><input type="text" id="fTitleJp" required></label>
+            <label class="admin-field"><span>英文</span>           <input type="text" id="fTitleEn"></label>
+            <label class="admin-field"><span>中文</span>           <input type="text" id="fTitleCn"></label>
+          </div>
+        </fieldset>
+
+        <fieldset class="admin-fieldset">
+          <legend>正文 <small>（允许使用 HTML 标签 — &lt;br&gt;, &lt;strong&gt;, &lt;em&gt;, &lt;a&gt;）</small></legend>
+          <div class="admin-grid admin-grid--3">
+            <label class="admin-field"><span>日文</span><textarea id="fBodyJp" rows="10"></textarea></label>
+            <label class="admin-field"><span>英文</span><textarea id="fBodyEn" rows="10"></textarea></label>
+            <label class="admin-field"><span>中文</span><textarea id="fBodyCn" rows="10"></textarea></label>
+          </div>
+        </fieldset>
+
+        <div class="admin-actions">
+          <button type="submit" class="admin-btn admin-btn--primary" id="adminSave">保存</button>
+          <button type="button" class="admin-btn admin-btn--danger" id="adminDelete" hidden>删除</button>
+          <span class="admin-actions__msg" id="adminMsg"></span>
+        </div>
+      </form>
+    </section>
+  </main>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="js/supabase-config.js"></script>
+<script src="js/admin.js"></script>
+</body>
+</html>

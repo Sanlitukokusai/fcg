@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-  <title>メンバー — FCG</title>
+  <title>News — FCG</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&family=Noto+Sans+JP:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
@@ -11,7 +11,7 @@
   <link rel="stylesheet" href="css/main.css">
   <link rel="stylesheet" href="css/fcg.css">
 </head>
-<body data-screen-label="03 Member">
+<body data-screen-label="News Article">
 
 <button class="c-gnav__trigger" id="burger" aria-label="メニュー">
   <span class="line"></span><span class="line"></span><span class="line"></span>
@@ -29,62 +29,9 @@
 </header>
 
 <main class="p-sub">
-  <section class="p-sub__hero">
-    <div>
-      <div class="p-sub__crumb" data-i18n="member.crumb">FCG / Member · メンバー</div>
-      <h1 class="p-sub__h" data-i18n="member.h1">Member<span class="jp">スタジオを構成する人たち</span></h1>
-    </div>
-    <div class="p-sub__count" data-i18n="member.count"><b>05</b>members · 2026</div>
-  </section>
-
-  <section class="p-sub__section">
-    <div class="p-sub__sectionHead" data-i18n="member.director.head">01 / Director</div>
-    <div class="p-member__feature">
-      <div class="p-member__portrait p-member__portrait--has-image">
-        <img src="img/member/wule.jpg" alt="Wu Le · Filmmaker / FCG Founder">
-      </div>
-      <div class="p-member__bio">
-        <h3 data-i18n="member.director.name">吳楽<small>Wu Le</small></h3>
-        <div class="role is-jp" data-i18n="member.director.role">監督・プロデューサー・FCG Founder</div>
-        <div class="p-member__bio-body" data-i18n="member.director.body">
-          <p class="is-jp">中国出身、東京在住。<br>東京藝術大学大学院 映像研究科 映画専攻 修了。</p>
-          <p class="is-jp">映画、広告、縦型ドラマなど幅広い映像制作に携わりながら、AI時代における映像表現と新しい制作ワークフローを探求している。</p>
-          <p class="is-jp">2025年、中日合作長編映画『風の吹くまま』を監督。現在はFCGを拠点に、映画・AI・クロスカルチャー表現を融合した次世代の映像制作に取り組んでいる。</p>
-        </div>
-      </div>
-    </div>
-  </section>
-
-  <section class="p-sub__section">
-    <div class="p-sub__sectionHead" data-i18n="member.roster.head">02 / Roster</div>
-    <div class="p-member__roster">
-      <div class="p-member__card">
-        <h4>TBD · A</h4>
-        <div class="role is-jp">プロデューサー</div>
-        <div class="tags"><span>Plan</span><span>Budget</span></div>
-      </div>
-      <div class="p-member__card">
-        <h4>TBD · B</h4>
-        <div class="role is-jp">テクニカルディレクター</div>
-        <div class="tags"><span>Diffusion</span><span>Pipeline</span></div>
-      </div>
-      <div class="p-member__card">
-        <h4>TBD · C</h4>
-        <div class="role is-jp">エンジニア</div>
-        <div class="tags"><span>Houdini</span><span>Comp</span></div>
-      </div>
-      <div class="p-member__card">
-        <h4>TBD · D</h4>
-        <div class="role is-jp">アシスタント監督</div>
-        <div class="tags"><span>Direction</span><span>Edit</span></div>
-      </div>
-      <div class="p-member__card">
-        <h4>TBD · E</h4>
-        <div class="role is-jp">サウンドデザイナー</div>
-        <div class="tags"><span>Music</span><span>Mix</span></div>
-      </div>
-    </div>
-  </section>
+  <article class="p-article" id="articleRoot">
+    <div class="p-article__loading">Loading…</div>
+  </article>
 </main>
 
 <nav class="c-gnav" id="gnav" aria-hidden="true">
@@ -111,6 +58,9 @@
 
 <div class="c-cover is-in"></div>
 
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="js/supabase-config.js"></script>
 <script src="js/main.js"></script>
+<script src="js/news-detail.js"></script>
 </body>
 </html>

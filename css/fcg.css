@@ -339,32 +339,59 @@ body.is-gnav .c-gnav__back {
 /* ============================================================
  * Theme toggle button (fixed top-left)
  * ============================================================ */
+/* Tab-style two-position switch in the bottom-right corner.
+   Knob slides between DARK ↔ LIGHT; active label inverts color. */
 .theme-toggle {
   position: fixed;
-  bottom: 16px;
-  left: 16px;
+  bottom: 22px;
+  right: 22px;
   z-index: 1100;
-  min-width: 58px;
-  height: 30px;
-  padding: 0 12px;
-  border-radius: 15px;
+  width: 132px;
+  height: 38px;
+  padding: 3px;
+  border-radius: 22px;
   background: var(--bg);
   border: 1px solid var(--hair);
-  color: var(--fg);
-  font-family: var(--font-mono);
-  font-size: 10px;
-  letter-spacing: .16em;
+  display: inline-flex;
+  cursor: pointer;
+  isolation: isolate;
+  box-shadow: 0 6px 22px rgba(0, 0, 0, 0.35);
+}
+body.is-light .theme-toggle {
+  box-shadow: 0 6px 22px rgba(0, 0, 0, 0.12);
+}
+.theme-toggle__knob {
+  position: absolute;
+  top: 3px;
+  bottom: 3px;
+  left: 3px;
+  width: calc(50% - 3px);
+  background: var(--fg);
+  border-radius: 20px;
+  transition: transform .35s var(--ease-out-circ);
+  z-index: 0;
+}
+body.is-light .theme-toggle__knob { transform: translateX(100%); }
+
+.theme-toggle__opt {
+  flex: 1;
+  position: relative;
+  z-index: 1;
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  cursor: pointer;
-  transition: background .25s var(--ease-hover), color .25s var(--ease-hover), border-color .25s var(--ease-hover);
+  font-family: var(--font-mono);
+  font-size: 10px;
+  letter-spacing: .22em;
+  color: var(--dim);
+  transition: color .25s var(--ease-hover);
+  user-select: none;
 }
-.theme-toggle:hover {
-  background: var(--fg);
-  color: var(--bg);
-  border-color: var(--fg);
-}
+/* Active = dark when knob is on left, light when on right */
+.theme-toggle__opt[data-mode="dark"]   { color: var(--bg); }
+body.is-light .theme-toggle__opt[data-mode="dark"]   { color: var(--dim); }
+.theme-toggle__opt[data-mode="light"]  { color: var(--dim); }
+body.is-light .theme-toggle__opt[data-mode="light"]  { color: var(--bg); }
 
 /* ============================================================
  * Loading overlay — FCG text logo (replaces PICS image)
@@ -381,38 +408,56 @@ body.is-gnav .c-gnav__back {
 }
 
 /* ============================================================
- * Header — reserve space on the right for the hamburger trigger
+ * Header — align CONTACT / lang picks / Menu on a single line.
+ * The whole cluster is shifted 3vw left of the viewport edge.
  * ============================================================ */
 .c-header {
-  padding-right: 80px !important;  /* 56px burger + 8px gap + 16px breathing */
+  /* Reserve room on the right for the hamburger pill + 3vw shift */
+  padding-right: calc(3vw + 56px) !important;
+  align-items: center !important;
+}
+.c-header__nav {
+  align-items: center !important;
+}
+.c-header__nav a[data-i18n="header.contact"] {
+  display: inline-flex;
+  align-items: center;
+  height: 28px;
+  line-height: 1;
 }
 
 /* ============================================================
- * Hamburger 3-span → X
+ * Hamburger pill — height = lang-pick height so they sit flush
  * ============================================================ */
 .c-gnav__trigger {
-  width: 56px; height: 56px;
-  position: fixed; top: 8px; right: 8px;
+  width: 44px; height: 28px;
+  position: fixed;
+  top: 14px;            /* matches lang-pick vertical centre */
+  right: 3vw;           /* the whole right cluster nudged 3% left */
   z-index: 1100;
   border: 1px solid var(--hair);
   background: transparent;
-  display: block;
+  border-radius: 6px;
+  padding: 0;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
 }
 .c-gnav__trigger .line {
   position: absolute;
-  left: 14px; right: 14px;
+  left: 10px; right: 10px;
   height: 1px;
   background: var(--fg);
   transition: top 0.5s var(--ease-big),
               transform 0.5s var(--ease-big),
               opacity 0.25s var(--ease-hover);
 }
-.c-gnav__trigger .line:nth-child(1) { top: 22px; }
-.c-gnav__trigger .line:nth-child(2) { top: 27px; }
-.c-gnav__trigger .line:nth-child(3) { top: 32px; }
-body.is-gnav .c-gnav__trigger .line:nth-child(1) { top: 27px; transform: rotate(45deg); }
+.c-gnav__trigger .line:nth-child(1) { top: 10px; }
+.c-gnav__trigger .line:nth-child(2) { top: 14px; }
+.c-gnav__trigger .line:nth-child(3) { top: 18px; }
+body.is-gnav .c-gnav__trigger .line:nth-child(1) { top: 14px; transform: rotate(45deg); }
 body.is-gnav .c-gnav__trigger .line:nth-child(2) { opacity: 0; }
-body.is-gnav .c-gnav__trigger .line:nth-child(3) { top: 27px; transform: rotate(-45deg); }
+body.is-gnav .c-gnav__trigger .line:nth-child(3) { top: 14px; transform: rotate(-45deg); }
 
 /* ============================================================
  * GNAV — full clip-path overlay
@@ -788,13 +833,34 @@ body.is-gnav .c-gnav {
   font-size: 11px; letter-spacing: .22em;
   color: var(--dim);
 }
+.p-member__portrait--has-image::after { content: none; }
+.p-member__portrait--has-image {
+  background: none;
+  padding: 0;
+  overflow: hidden;
+}
+.p-member__portrait--has-image img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
 .p-member__bio h3 {
   font-family: var(--font-display-sans);
   font-weight: 600;
   font-size: clamp(32px, 4.2vw, 56px);
   letter-spacing: -0.025em;
   line-height: 1;
-  margin-bottom: 6px;
+  margin-bottom: 8px;
+  text-transform: none;       /* allow CJK glyphs to display normally */
+}
+.p-member__bio h3 small {
+  display: block;
+  font-family: var(--font-mono);
+  font-size: 12px;
+  letter-spacing: .22em;
+  color: var(--dim);
+  margin-top: 6px;
   text-transform: uppercase;
 }
 .p-member__bio .role {
@@ -1103,13 +1169,14 @@ body.is-gnav .c-gnav {
 @media (max-width: 900px) {
   :root { --hdr-h: 60px; --ftr-h: 56px; }
 
-  .c-gnav__trigger { width: 48px; height: 48px; }
-  .c-gnav__trigger .line { left: 12px; right: 12px; }
-  .c-gnav__trigger .line:nth-child(1) { top: 18px; }
-  .c-gnav__trigger .line:nth-child(2) { top: 23px; }
-  .c-gnav__trigger .line:nth-child(3) { top: 28px; }
-  body.is-gnav .c-gnav__trigger .line:nth-child(1) { top: 23px; }
-  body.is-gnav .c-gnav__trigger .line:nth-child(3) { top: 23px; }
+  /* Slightly bigger touch target on phones, but keep the flat pill shape */
+  .c-gnav__trigger { width: 48px; height: 32px; top: 12px; right: 16px; }
+  .c-gnav__trigger .line { left: 11px; right: 11px; }
+  .c-gnav__trigger .line:nth-child(1) { top: 11px; }
+  .c-gnav__trigger .line:nth-child(2) { top: 16px; }
+  .c-gnav__trigger .line:nth-child(3) { top: 21px; }
+  body.is-gnav .c-gnav__trigger .line:nth-child(1) { top: 16px; }
+  body.is-gnav .c-gnav__trigger .line:nth-child(3) { top: 16px; }
 
   .c-gnav { grid-template-columns: 64px 1fr; }
   .c-gnav__back { left: 80px; }
@@ -1167,29 +1234,432 @@ body.is-gnav .c-gnav {
   /* No solid bg — let the page bg show around the round lens */
   background: transparent;
 }
+/* Lens geometry vars — overridden per breakpoint below.
+   --lens-shift = horizontal offset from viewport center
+   --lens-size  = side of the square lens-stage layer
+   --canvas-px  = diameter of the circular video viewport         */
+html.is-home {
+  --lens-shift: 250px;
+  --lens-size: 135vmin;
+  --canvas-px: 72vmin;
+}
 .lens-stage__img {
   position: absolute;
-  /* Square layer — bumped up + nudged right per request. */
   top: 50%;
   left: 50%;
-  width: 135vmin;
-  height: 135vmin;
+  width: var(--lens-size);
+  height: var(--lens-size);
   background: url("../img/bg/lens.jpg") center / cover no-repeat;
   /* Crop the surrounding dark photo backdrop — keep the full lens
      visible (outer ring with text + inner aperture). */
   clip-path: circle(33.8% at 50% 50%);
-  transform: translate(calc(-50% + 250px), -50%) scale(3.2);
+  transform: translate(calc(-50% + var(--lens-shift)), -50%) scale(3.2);
   opacity: 0;
 }
+/* Services-lens layer stacked on top via ::after — cross-fades in/out so
+   the engraved-text swap is smooth rather than abrupt. Inherits clip-path
+   and transform from the parent.
+   1.5s easing matches the canvas-dim cycle so image + video transition
+   visually together. */
+.lens-stage__img::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: url("../img/bg/lens-services.jpg") center / cover no-repeat;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 1.5s var(--ease-out-circ);
+}
+body.is-lens-services .lens-stage__img::after { opacity: 1; }
 body.is-loaded .lens-stage__img {
   animation: lensIntro 2.8s cubic-bezier(0.77, 0, 0.355, 1) 0.15s forwards;
 }
 @keyframes lensIntro {
-  0%   { transform: translate(calc(-50% + 250px), -50%) scale(3.2); opacity: 0; }
+  0%   { transform: translate(calc(-50% + var(--lens-shift)), -50%) scale(3.2); opacity: 0; }
   15%  { opacity: 1; }
-  100% { transform: translate(calc(-50% + 250px), -50%) scale(1.0); opacity: 1; }
+  100% { transform: translate(calc(-50% + var(--lens-shift)), -50%) scale(1.0); opacity: 1; }
 }
-/* Settle state — fade-in handled by the scoped rule below */
+
+/* Hide the legacy PICS chevron watermark in the corner */
+.bg-mark { display: none !important; }
+
+/* News list loading / empty states */
+.p-news__loading,
+.p-news__empty,
+.p-article__loading {
+  padding: 32px 0;
+  font-family: var(--font-mono);
+  font-size: 11px;
+  letter-spacing: .2em;
+  color: var(--dim);
+  text-align: center;
+}
+
+/* ============================================================
+ * News article detail page
+ * ============================================================ */
+.p-article {
+  padding: 96px 8vw 120px;
+  max-width: 1280px;
+  margin: 0 auto;
+}
+.p-article__title {
+  font-size: clamp(28px, 3.6vw, 56px);
+  line-height: 1.2;
+  letter-spacing: -0.01em;
+  max-width: 920px;
+}
+.p-article__cover-wrap { padding: 0; margin: 32px 0; }
+.p-article__cover {
+  display: block;
+  width: 100%;
+  max-height: 70vh;
+  object-fit: cover;
+  border: 1px solid var(--hair);
+  background: rgba(255,255,255,0.02);
+}
+.p-article__body {
+  font-family: var(--font-jp);
+  font-size: 16px;
+  line-height: 1.95;
+  color: var(--fg);
+  max-width: 720px;
+  letter-spacing: .02em;
+}
+.p-article__body p { margin-bottom: 16px; }
+.p-article__back {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  letter-spacing: .22em;
+  color: var(--dim);
+  text-transform: uppercase;
+  border-bottom: 1px solid var(--hair);
+  padding-bottom: 2px;
+  transition: color .25s var(--ease-hover), border-color .25s var(--ease-hover);
+}
+.p-article__back:hover { color: var(--fg); border-color: var(--fg); }
+
+@media (max-width: 900px) {
+  .p-article { padding: 80px 24px 80px; }
+  .p-article__title { font-size: 26px; }
+  .p-article__body { font-size: 15px; line-height: 1.85; }
+}
+
+/* ============================================================
+ * Language switcher pills (in c-header__nav)
+ * ============================================================ */
+.lang-pick {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  letter-spacing: .2em;
+  color: var(--dim);
+  background: transparent;
+  border: 1px solid transparent;
+  border-radius: 14px;
+  height: 28px;
+  padding: 0 12px;
+  cursor: pointer;
+  text-transform: uppercase;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  line-height: 1;
+  transition: color .25s var(--ease-hover),
+              border-color .25s var(--ease-hover),
+              background .25s var(--ease-hover);
+}
+.lang-pick:hover { color: var(--fg); }
+.lang-pick.is-active {
+  color: var(--bg);
+  background: var(--fg);
+  border-color: var(--fg);
+}
+
+/* ============================================================
+ * Sound toggle — bottom-left pill with animated EQ bars + halo
+ * ============================================================ */
+.sound-toggle {
+  position: fixed;
+  left: 20px;
+  bottom: 20px;
+  z-index: 1100;
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  padding: 6px 16px 6px 8px;
+  height: 40px;
+  border-radius: 22px;
+  border: 1px solid var(--hair);
+  background: var(--bg);
+  color: var(--fg);
+  cursor: pointer;
+  font-family: var(--font-mono);
+  font-size: 10px;
+  letter-spacing: .2em;
+  text-transform: uppercase;
+  overflow: hidden;
+  isolation: isolate;
+  transition: border-color .25s var(--ease-hover), transform .25s var(--ease-hover);
+}
+.sound-toggle:hover { transform: translateY(-1px); border-color: var(--fg); }
+
+/* Iridescent halo behind the icon — pings when sound is on */
+.sound-toggle__halo {
+  position: absolute;
+  left: -8px; top: -8px;
+  width: 56px; height: 56px;
+  border-radius: 50%;
+  background:
+    radial-gradient(circle at 30% 30%, rgba(255,160,210,.55), transparent 55%),
+    radial-gradient(circle at 75% 60%, rgba(140,200,255,.55), transparent 55%),
+    radial-gradient(circle at 50% 80%, rgba(180,255,180,.45), transparent 60%);
+  filter: blur(6px);
+  opacity: 0;
+  transform: scale(.85);
+  transition: opacity .35s var(--ease-hover), transform .6s var(--ease-out-circ);
+  z-index: -1;
+  pointer-events: none;
+}
+.sound-toggle.is-on .sound-toggle__halo {
+  opacity: 1;
+  transform: scale(1);
+  animation: soundHaloPulse 3.4s ease-in-out infinite;
+}
+@keyframes soundHaloPulse {
+  0%, 100% { transform: scale(1);    filter: blur(6px) hue-rotate(0deg); }
+  50%      { transform: scale(1.12); filter: blur(9px) hue-rotate(40deg); }
+}
+
+/* EQ bar icon (4 bars). Static when off, animated when on. */
+.sound-toggle__icon,
+.sound-prompt__icon {
+  display: inline-flex;
+  align-items: center;
+  gap: 2px;
+  width: 26px;
+  height: 26px;
+  justify-content: center;
+}
+.sound-toggle__icon .bar,
+.sound-prompt__icon .bar {
+  width: 3px;
+  height: 12px;
+  background: var(--fg);
+  border-radius: 2px;
+  transform-origin: center;
+}
+.sound-toggle.is-on .sound-toggle__icon .bar {
+  animation: soundEq .9s ease-in-out infinite;
+}
+.sound-toggle.is-on .sound-toggle__icon .bar:nth-child(2) { animation-delay: .15s; }
+.sound-toggle.is-on .sound-toggle__icon .bar:nth-child(3) { animation-delay: .30s; }
+.sound-toggle.is-on .sound-toggle__icon .bar:nth-child(4) { animation-delay: .45s; }
+@keyframes soundEq {
+  0%, 100% { transform: scaleY(.35); }
+  50%      { transform: scaleY(1.0); }
+}
+
+.sound-toggle__label { white-space: nowrap; }
+
+/* ============================================================
+ * First-visit sound prompt
+ * ============================================================ */
+.sound-prompt {
+  position: fixed;
+  inset: 0;
+  z-index: 12000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(0,0,0,.78);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  animation: soundPromptIn .4s var(--ease-out-circ);
+}
+.sound-prompt[hidden] { display: none; }
+body.is-light .sound-prompt { background: rgba(255,255,255,.82); }
+@keyframes soundPromptIn {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+.sound-prompt__card {
+  width: min(440px, 92vw);
+  padding: 38px 32px 30px;
+  background: var(--bg);
+  border: 1px solid var(--hair);
+  border-radius: 18px;
+  text-align: center;
+  box-shadow: 0 30px 80px rgba(0,0,0,.45);
+}
+.sound-prompt__icon {
+  width: 48px;
+  height: 48px;
+  margin: 0 auto 16px;
+}
+.sound-prompt__icon .bar { width: 4px; height: 22px; }
+.sound-prompt__title {
+  font-family: var(--font-jp);
+  font-weight: 500;
+  font-size: 15px;
+  line-height: 1.65;
+  color: var(--fg);
+  margin: 0 0 22px;
+}
+.sound-prompt__title span {
+  display: inline-block;
+  margin-top: 4px;
+  color: var(--dim);
+  font-size: 13px;
+}
+.sound-prompt__row {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+.sound-prompt__btn {
+  width: 100%;
+  padding: 12px 16px;
+  border-radius: 22px;
+  border: 1px solid var(--hair);
+  background: transparent;
+  color: var(--fg);
+  font-family: var(--font-mono);
+  font-size: 11px;
+  letter-spacing: .22em;
+  cursor: pointer;
+  transition: background .25s var(--ease-hover), color .25s var(--ease-hover), border-color .25s var(--ease-hover);
+}
+.sound-prompt__btn:hover {
+  background: var(--fg); color: var(--bg); border-color: var(--fg);
+}
+.sound-prompt__btn.is-primary {
+  background: var(--fg); color: var(--bg); border-color: var(--fg);
+}
+.sound-prompt__btn.is-primary:hover {
+  background: transparent; color: var(--fg);
+}
+
+/* ============================================================
+ * Lens click-area — circular hit zone on the inner viewport.
+ * Sits over the canvas; on click opens the fullscreen player.
+ * ============================================================ */
+.lens-clickarea {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  width: var(--canvas-px);
+  height: var(--canvas-px);
+  transform: translate(calc(-50% + var(--lens-shift)), -50%);
+  border-radius: 50%;
+  background: transparent;
+  border: 0;
+  padding: 0;
+  /* Must beat the hero panel (z-index 10) but stay below the hot-layer
+     buttons (11) so the text-band hover zones still take priority. */
+  z-index: 11;
+  cursor: pointer;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity .9s var(--ease-hover) 2.6s;
+}
+body.lens-ready .lens-clickarea { opacity: 1; pointer-events: auto; }
+.lens-clickarea:focus-visible {
+  outline: 2px solid var(--fg);
+  outline-offset: 4px;
+}
+
+/* ============================================================
+ * Fullscreen video player overlay
+ * ============================================================ */
+.lens-player {
+  position: fixed;
+  inset: 0;
+  z-index: 13000;        /* above everything (loading is 10000, gnav 9000) */
+  background: #000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  animation: lensPlayerIn .35s var(--ease-out-circ);
+}
+.lens-player[hidden] { display: none; }
+@keyframes lensPlayerIn {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+.lens-player__video {
+  width: 100vw;
+  height: 100vh;
+  max-width: 100%;
+  max-height: 100%;
+  object-fit: contain;
+  background: #000;
+}
+.lens-player__close {
+  position: absolute;
+  top: 20px; right: 22px;
+  width: 44px; height: 44px;
+  border-radius: 22px;
+  border: 1px solid rgba(255,255,255,0.25);
+  background: rgba(0,0,0,0.5);
+  color: #fff;
+  font-size: 22px;
+  line-height: 1;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  transition: background .25s var(--ease-hover), border-color .25s var(--ease-hover);
+}
+.lens-player__close:hover {
+  background: #fff;
+  color: #000;
+  border-color: #fff;
+}
+
+/* ============================================================
+ * Lens hotzones — invisible buttons over the engraved text.
+ * Hovering one swaps the lens video to that service's clip.
+ *   Geometry mirrors .lens-stage__img: 135vmin square layer,
+ *   centered + shifted right (matches lens position).
+ * ============================================================ */
+.lens-hot-layer {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  width: var(--lens-size);
+  height: var(--lens-size);
+  transform: translate(calc(-50% + var(--lens-shift)), -50%);
+  z-index: 11;
+  pointer-events: none;          /* only the buttons inside catch events */
+  opacity: 0;
+  transition: opacity .9s var(--ease-hover) 2.6s;
+}
+body.lens-ready .lens-hot-layer { opacity: 1; }
+
+.lens-hot {
+  position: absolute;
+  background: transparent;
+  border: 0;
+  padding: 0;
+  cursor: pointer;
+  pointer-events: auto;
+  /* No visible hover background — we don't want a rectangular outline
+     bleeding through the lens. Focus ring stays for keyboard a11y. */
+}
+.lens-hot:focus-visible { outline: 1px dashed var(--fg); outline-offset: 2px; }
+
+/* Approximate positions over the engraved text on hiob315-lens.jpg
+   (% are relative to the 135vmin lens-stage layer) */
+.lens-hot--top   { top: 13%;  left: 33%; width: 34%; height: 9%;  }   /* "50-120 mm" / AI Film Production    */
+.lens-hot--left  { top: 30%;  left: 13%; width: 9%;  height: 26%; }   /* "Zoom Lens" / AI Workflow Consulting */
+.lens-hot--right { top: 28%;  left: 76%; width: 10%; height: 14%; }   /* "1:2.8"     / Commercial & Brand Films */
+.lens-hot--rb    { top: 47%;  left: 76%; width: 9%;  height: 25%; }   /* "ø 64 mm"   / Vertical Short Drama   */
+.lens-hot--bot   { top: 72%;  left: 28%; width: 44%; height: 9%;  }   /* "Made in Germany" / Cross-border (JP/CN) */
+
+/* Hover service-name chip is suppressed — the engraved text on the
+   services-lens already says the service name, so a floating pill is
+   redundant and visually noisy. (DOM kept for backwards compat.) */
+.lens-service { display: none !important; }
 
 /* ============================================================
  * WebGL canvas as the lens "glass" — circular viewport
@@ -1203,12 +1673,10 @@ html.is-home #canvasContainer {
   left: 50%;
   /* Sit inside the lens's inner concentric circle (aperture area) —
      keeps the outer ring with "Zoom Lens / 50-120 mm / Made in Germany"
-     text visible. Lens visible diameter ≈ 135vmin × 0.66 = 76vmin; the
-     inner aperture is ~60% of that → ~45vmin.
-     Anchored 30px to the right to match the shifted lens. */
-  width: 72vmin;
-  height: 72vmin;
-  transform: translate(calc(-50% + 250px), -50%);
+     text visible. Diameter follows --canvas-px (driven by breakpoints). */
+  width: var(--canvas-px);
+  height: var(--canvas-px);
+  transform: translate(calc(-50% + var(--lens-shift)), -50%);
   border-radius: 50%;
   overflow: hidden;
   opacity: 0;
@@ -1256,16 +1724,30 @@ body.is-light .lens-stage__img { filter: brightness(0.78) contrast(0.95); }
   line-height: 1;
 }
 
+.top_hero__title {
+  font-family: var(--font-display-sans);
+  font-weight: 500;
+  font-size: clamp(13px, 1.05vw, 16px);
+  letter-spacing: .08em;
+  line-height: 1.3;
+  margin: 0;
+  color: var(--dim);
+  max-width: 56ch;
+  text-transform: none;
+}
+
 .top_hero__lead {
   font-family: var(--font-jp);
   font-weight: 500;
-  font-size: clamp(22px, 2.6vw, 38px);
-  line-height: 1.55;
+  /* Sized so two-line Japanese fits beside the lens at every viewport
+     between 1500 and 1920. The lens at 1920×1080 sits ~717px from left,
+     hero padding-left is 95px → safe text width ≤ 590px. */
+  font-size: clamp(17px, 1.4vw, 24px);
+  line-height: 1.65;
   letter-spacing: .02em;
-  max-width: 760px;
+  max-width: clamp(360px, 28vw, 540px);
   margin: 0;
   color: var(--fg);
-  /* Keep Japanese clauses on a single line whenever possible */
   word-break: keep-all;
   overflow-wrap: normal;
 }
@@ -1274,8 +1756,10 @@ body.is-light .lens-stage__img { filter: brightness(0.78) contrast(0.95); }
   padding-bottom: 1px;
 }
 .top_hero__lead .nb {
-  white-space: nowrap;
-  display: inline-block;
+  /* Inline only — nowrap was forcing overflow into the lens at
+     mid-size viewports. Japanese now wraps naturally at 、 thanks
+     to `word-break: keep-all` on the parent. */
+  display: inline;
 }
 
 .top_hero__rule {
@@ -1327,13 +1811,62 @@ body.is-light .lens-stage__img { filter: brightness(0.78) contrast(0.95); }
   flex: 0 0 auto;
 }
 
+/* ================================================================
+ * Homepage responsive — single keyframes, geometry via CSS vars.
+ *
+ *   Math (per breakpoint): the lens visible diameter is
+ *     lens-size × 0.676 (clip-path 33.8% × 2)
+ *   Its left edge sits at (viewport.w/2 + --lens-shift − radius).
+ *   The hero copy is anchored at padding-left 80–95px with
+ *   text max-width capped per breakpoint so its right edge stays
+ *   to the LEFT of the lens at every viewport between 900–1920px.
+ * ================================================================ */
+
+/* ---- 1180 < w ≤ 1440 ---- */
+@media (max-width: 1440px) {
+  html.is-home { --lens-shift: 180px; --lens-size: 115vmin; --canvas-px: 60vmin; }
+  .top_hero        { padding: 0 6vw 0 80px; }
+  .top_hero__lead  { font-size: clamp(15px, 1.4vw, 19px); max-width: 28vw; }
+  .top_hero__title { font-size: 13px; }
+}
+
+/* ---- 1024 < w ≤ 1180 ---- */
+@media (max-width: 1180px) {
+  html.is-home { --lens-shift: 150px; --lens-size: 95vmin; --canvas-px: 50vmin; }
+  .top_hero__lead {
+    font-size: 15px;
+    line-height: 1.65;
+    max-width: 30vw;
+  }
+  .top_hero__lead .nb { white-space: normal; display: inline; }
+  .top_hero__title { font-size: 11px; }
+  .top_hero__meta  { font-size: 10px; }
+}
+
+/* ---- 900 < w ≤ 1024 ---- */
+@media (max-width: 1024px) {
+  html.is-home { --lens-shift: 130px; --lens-size: 75vmin; --canvas-px: 40vmin; }
+  .top_hero        { padding: 0 4vw 0 64px; }
+  .top_hero__lead  { font-size: 13px; line-height: 1.65; max-width: 34vw; }
+  .top_hero__title { font-size: 10px; }
+}
+
+/* ---- Mobile ≤ 900 — stack vertically ---- */
 @media (max-width: 900px) {
+  html.is-home { --lens-shift: 0px; --lens-size: 88vmin; --canvas-px: 48vmin; }
   .top_hero {
     flex: 0 0 100vw;
     padding: 80px 24px 24px;
     justify-content: flex-start;
-    gap: 16px;
+    gap: 14px;
   }
-  .top_hero__lead { font-size: 22px; line-height: 1.6; }
-  .top_hero__meta { grid-template-columns: 60px 1fr; font-size: 10px; }
+  .top_hero__lead {
+    font-size: 16px;
+    line-height: 1.6;
+    max-width: none;
+  }
+  .top_hero__lead .nb { white-space: normal; display: inline; }
+  .top_hero__title { font-size: 11px; }
+  .top_hero__meta  { grid-template-columns: 60px 1fr; font-size: 10px; }
+  .lens-service    { font-size: 11px; padding: 6px 12px; }
 }

@@ -44,9 +44,10 @@
       <small>Generative AI Film Studio</small>
     </a>
     <nav class="c-header__nav">
-      <a href="contact.html" data-page>CONTACT</a>
-      <a href="#">EN</a>
-      <a href="#">KR</a>
+      <a href="contact.html" data-page data-i18n="header.contact">CONTACT</a>
+      <button type="button" class="lang-pick" data-lang="jp">JP</button>
+      <button type="button" class="lang-pick" data-lang="en">EN</button>
+      <button type="button" class="lang-pick" data-lang="cn">CN</button>
     </nav>
   </header>
 
@@ -68,6 +69,25 @@
   <!-- ============ Three.js canvas (procedural WebGL stage) ============ -->
   <div id="canvasContainer"></div>
 
+  <!-- Click target sitting on top of the canvas — opens fullscreen player -->
+  <button type="button" class="lens-clickarea" aria-label="Play showreel in fullscreen"></button>
+
+  <!-- ============ Fullscreen video player overlay ============ -->
+  <div class="lens-player" id="lensPlayer" hidden>
+    <video class="lens-player__video" id="lensPlayerVideo" playsinline muted controls></video>
+    <button type="button" class="lens-player__close" id="lensPlayerClose" aria-label="Close">×</button>
+  </div>
+
+  <!-- ============ Lens hotzones — hover the engraved text to switch video ============ -->
+  <div class="lens-hot-layer" aria-label="Service shortcuts on the lens">
+    <button class="lens-hot lens-hot--top"   type="button" data-svc="film"        aria-label="AI Film Production"></button>
+    <button class="lens-hot lens-hot--left"  type="button" data-svc="commercial"  aria-label="Commercial &amp; Brand Films"></button>
+    <button class="lens-hot lens-hot--right" type="button" data-svc="vertical"    aria-label="Vertical Short Drama"></button>
+    <button class="lens-hot lens-hot--rb"    type="button" data-svc="crossborder" aria-label="Cross-border Production"></button>
+    <button class="lens-hot lens-hot--bot"   type="button" data-svc="consulting"  aria-label="AI Workflow Consulting"></button>
+  </div>
+  <div class="lens-service" aria-live="polite"></div>
+
   <!-- ============ Main horizontal-scroll content ============ -->
   <div id="c-wrapper" class="c-wrapper">
     <div class="p-top">
@@ -77,25 +97,23 @@
 
         <!-- ============ Hero (first horizontal panel) ============ -->
         <section class="top_hero" aria-labelledby="heroLead">
-          <div class="top_hero__crumb">
-            <span>FCG</span><i>·</i><span>2026 SHOWREEL</span><i>·</i><span>京都 / 東京</span>
+          <div class="top_hero__crumb" data-i18n="hero.crumb">
+            <span>FCG</span><i>·</i><span>2026 SHOWREEL</span><i>·</i><span>東京 · 千代田</span>
           </div>
-          <p class="top_hero__lead" id="heroLead">
-            <span class="u">ニューラルツールでつくる、</span>
-            <span class="u">ジェネラティブな映像のため</span><br>
-            <span class="nb">のちいさなスタジオ。</span><br>
-            <span class="nb">短編映画、ミュージックビデオ、</span><br>
-            <span class="nb">ブランドフィルムを監督します。</span>
+          <h2 class="top_hero__title" data-i18n="hero.title">AI Film &amp; Creative Studio based in Tokyo</h2>
+          <p class="top_hero__lead" id="heroLead" data-i18n="hero.lead">
+            <span class="nb">FCGは、映画・AI・クロスカルチャー表現を通じて、</span><br>
+            <span class="nb">新しい映像言語を探求するクリエイティブスタジオです。</span>
           </p>
           <hr class="top_hero__rule">
           <dl class="top_hero__meta">
-            <dt>EST.</dt>   <dd>2024</dd>
-            <dt>FOCUS</dt>  <dd>FILM · MUSIC VIDEO · BRAND · R&amp;D</dd>
-            <dt>TOOLS</dt>  <dd>CUSTOM DIFFUSION · HOUDINI · COMP</dd>
+            <dt data-i18n="hero.est">EST.</dt>   <dd>2017</dd>
+            <dt data-i18n="hero.focus">FOCUS</dt>  <dd>AI FILM · COMMERCIAL · SHORT DRAMA · JP/CN</dd>
+            <dt data-i18n="hero.tools">TOOLS</dt>  <dd>CUSTOM DIFFUSION · HOUDINI · COMP</dd>
           </dl>
           <div class="top_hero__hint">
-            <span>SCROLL →</span>
-            <span class="jp">右にスクロールしてメニューへ</span>
+            <span data-i18n="hero.scroll">SCROLL →</span>
+            <span class="jp" data-i18n="hero.scrollSub">右にスクロールしてメニューへ</span>
           </div>
         </section>
 
@@ -123,8 +141,31 @@
     </div>
   </div>
 
-  <!-- ============ Background mark ============ -->
-  <div class="bg-mark"><img src="img/ui/bg_mark.png" alt=""></div>
+  <!-- ============ Background music (hidden audio element) ============ -->
+  <audio id="fcgBgm" src="https://wfstwbeehomzdudvikbt.supabase.co/storage/v1/object/public/fcg-videos/bgm.mp4" loop preload="auto"></audio>
+
+  <!-- ============ Sound toggle (bottom-left) ============ -->
+  <button type="button" class="sound-toggle" id="soundToggle" aria-label="Toggle background music" aria-pressed="false">
+    <span class="sound-toggle__halo" aria-hidden="true"></span>
+    <span class="sound-toggle__icon" aria-hidden="true">
+      <span class="bar"></span><span class="bar"></span><span class="bar"></span><span class="bar"></span>
+    </span>
+    <span class="sound-toggle__label">SOUND OFF</span>
+  </button>
+
+  <!-- ============ Sound prompt — first-visit modal ============ -->
+  <div class="sound-prompt" id="soundPrompt" hidden role="dialog" aria-labelledby="soundPromptTitle">
+    <div class="sound-prompt__card">
+      <div class="sound-prompt__icon" aria-hidden="true">
+        <span class="bar"></span><span class="bar"></span><span class="bar"></span><span class="bar"></span>
+      </div>
+      <p class="sound-prompt__title" id="soundPromptTitle" data-i18n="sound.title">この体験はサウンドと共にお楽しみいただけます。<br><span>音楽を再生しますか？</span></p>
+      <div class="sound-prompt__row">
+        <button type="button" class="sound-prompt__btn is-primary" data-choice="on"  data-i18n="sound.yes">YES, PLAY MUSIC</button>
+        <button type="button" class="sound-prompt__btn"            data-choice="off" data-i18n="sound.no">NO THANKS</button>
+      </div>
+    </div>
+  </div>
 
   <!-- ============ GNAV overlay ============ -->
   <nav class="c-gnav" id="gnav" aria-hidden="true">
@@ -136,36 +177,37 @@
     </aside>
     <div class="c-gnav__body">
       <div class="c-gnav__col">
-        <h6>Contents · 01</h6>
+        <h6 data-i18n="nav.contents">Contents · 01</h6>
         <ul>
-          <li><a href="index.html"   data-page><span class="num">01</span><span class="lbl">Home<span class="jp">ホーム</span></span></a></li>
-          <li><a href="news.html"    data-page><span class="num">02</span><span class="lbl">News<span class="jp">ニュース</span></span></a></li>
-          <li><a href="member.html"  data-page><span class="num">03</span><span class="lbl">Member<span class="jp">メンバー</span></span></a></li>
+          <li><a href="index.html"   data-page><span class="num">01</span><span class="lbl" data-i18n="nav.home.lbl">Home<span class="jp">ホーム</span></span></a></li>
+          <li><a href="news.html"    data-page><span class="num">02</span><span class="lbl" data-i18n="nav.news.lbl">News<span class="jp">ニュース</span></span></a></li>
+          <li><a href="member.html"  data-page><span class="num">03</span><span class="lbl" data-i18n="nav.member.lbl">Member<span class="jp">メンバー</span></span></a></li>
         </ul>
       </div>
       <div class="c-gnav__col">
-        <h6>About · 02</h6>
+        <h6 data-i18n="nav.about">About · 02</h6>
         <ul>
-          <li><a href="company.html" data-page><span class="num">04</span><span class="lbl">Company<span class="jp">会社情報</span></span></a></li>
-          <li><a href="recruit.html" data-page><span class="num">05</span><span class="lbl">Recruit<span class="jp">採用情報</span></span></a></li>
+          <li><a href="company.html" data-page><span class="num">04</span><span class="lbl" data-i18n="nav.company.lbl">Company<span class="jp">会社情報</span></span></a></li>
+          <li><a href="recruit.html" data-page><span class="num">05</span><span class="lbl" data-i18n="nav.recruit.lbl">Recruit<span class="jp">採用情報</span></span></a></li>
         </ul>
       </div>
       <div class="c-gnav__col">
-        <h6>Inquiry · 03</h6>
+        <h6 data-i18n="nav.inquiry">Inquiry · 03</h6>
         <ul>
-          <li><a href="contact.html" data-page><span class="num">06</span><span class="lbl">Contact<span class="jp">お問い合わせ</span></span></a></li>
+          <li><a href="contact.html" data-page><span class="num">06</span><span class="lbl" data-i18n="nav.contact.lbl">Contact<span class="jp">お問い合わせ</span></span></a></li>
         </ul>
       </div>
       <div class="c-gnav__addr">
         <div class="blk">
-          <b>Tokyo · Studio</b>
-          Naka-Meguro · Tokyo · Japan<br>
-          <span class="jp">東京都目黒区中目黒</span>
+          <b data-i18n="addr.office">Tokyo · Head Office</b>
+          Win Kanda 7F, 1-7-1 Kanda-Sudacho,<br>
+          Chiyoda-ku, Tokyo · Japan<br>
+          <span class="jp">東京都千代田区神田須田町一丁目7-1<br>ウィン神田7F</span>
         </div>
         <div class="blk">
-          <b>Studio Director</b>
-          Director · Founder<br>
-          <span class="jp">代表ディレクター</span><br>
+          <b data-i18n="addr.rep">Representative Director</b>
+          Qu Dongsheng · Founder &amp; CEO<br>
+          <span class="jp">代表取締役　屈 東升</span><br>
           studio@fcg.film
         </div>
       </div>
@@ -225,29 +267,54 @@
   /* Render menu items as TEXT (in PICSConduit italic).
      Hover gives outlined-letter effect via -webkit-text-stroke,
      letting the WebGL water-droplet show through the letterforms. */
-  const MENU_ITEMS = [
-    { i: 1, label: 'NEWS',    jp: 'ニュース',     desc: '最新のお知らせ、新作のリリース、受賞情報。スタジオの最新の動きをここからお伝えします。',                            href: 'news.html'    },
-    { i: 2, label: 'WORKS',   jp: 'ワークス',     desc: '短編映画、ミュージックビデオ、ブランドフィルム。FCG が監督・制作した作品の一覧。',                                  href: '#'            },
-    { i: 3, label: 'MEMBER',  jp: 'メンバー',     desc: 'ディレクター、エンジニア、プロデューサー — スタジオを構成するメンバーの紹介と役割。',                                href: 'member.html'  },
-    { i: 4, label: 'CREATOR', jp: 'クリエイター', desc: 'FCG と協働するクリエイターたち。撮影、編集、サウンド、ヴィジュアル開発などのコラボレーター。',                       href: '#'            },
-    { i: 5, label: 'COMPANY', jp: '会社情報',     desc: 'FCG という会社について。理念、所在地、代表ディレクター、事業内容を掲載しています。',                              href: 'company.html' },
-    { i: 6, label: 'TECH',    jp: 'テック',       desc: 'カスタム拡散モデル、Houdini、コンポジット — FCG が開発・運用する生成 AI 映像のためのテクノロジースタック。',          href: '#'            },
+  // Menu items: label stays English (brand-style); jp + desc come from
+  // the i18n dictionary so the panel & nav can re-render on language change.
+  const MENU_DEFS = [
+    { i: 1, key: 'news',    label: 'NEWS',    href: 'news.html'    },
+    { i: 2, key: 'works',   label: 'WORKS',   href: '#'            },
+    { i: 3, key: 'member',  label: 'MEMBER',  href: 'member.html'  },
+    { i: 4, key: 'creator', label: 'CREATOR', href: '#'            },
+    { i: 5, key: 'company', label: 'COMPANY', href: 'company.html' },
+    { i: 6, key: 'tech',    label: 'TECH',    href: '#'            }
   ];
-  window.MENU_ITEMS = MENU_ITEMS;
-
   const pad = (n) => String(n).padStart(2, '0');
-  const ul = document.querySelector('#topNav ul');
-  ul.innerHTML = MENU_ITEMS.map(({ i, label, jp, desc, href }) => {
-    const dataPage = href.endsWith('.html') ? ' data-page' : '';
-    return `
-      <li class="menu-item" data-idx="${i - 1}">
-        <a href="${href}"${dataPage} class="menu-item__link" aria-label="${pad(i)} ${label} / ${jp}">
-          <span class="menu-item__num">${pad(i)}</span>
-          <span class="menu-item__word">${label}<span class="menu-item__jp">${jp}</span></span>
-        </a>
-      </li>
-    `;
-  }).join('');
+
+  function buildMenuItems() {
+    const t = (k) => (window.FCG_I18N && window.FCG_I18N[window.fcgGetLang ? window.fcgGetLang() : 'jp'])?.[k] || '';
+    return MENU_DEFS.map(d => ({
+      ...d,
+      jp:   t('menu.' + d.key + '.jp')   || '',
+      desc: t('menu.' + d.key + '.desc') || ''
+    }));
+  }
+
+  function renderMenu() {
+    const items = buildMenuItems();
+    window.MENU_ITEMS = items;
+    const ul = document.querySelector('#topNav ul');
+    if (!ul) return;
+    ul.innerHTML = items.map(({ i, label, jp, desc, href }) => {
+      const dataPage = href.endsWith('.html') ? ' data-page' : '';
+      return `
+        <li class="menu-item" data-idx="${i - 1}">
+          <a href="${href}"${dataPage} class="menu-item__link" aria-label="${pad(i)} ${label} / ${jp}">
+            <span class="menu-item__num">${pad(i)}</span>
+            <span class="menu-item__word">${label}<span class="menu-item__jp">${jp}</span></span>
+          </a>
+        </li>
+      `;
+    }).join('');
+    // Re-bind hover effects (defined in three-stage.js)
+    if (typeof window.fcgRebindMenuHover === 'function') window.fcgRebindMenuHover();
+  }
+  renderMenu();
+
+  // Re-render menu and panel on language change
+  window.addEventListener('fcg:lang', () => {
+    renderMenu();
+    // Force the description panel to refresh with new lang
+    if (typeof window.fcgRefreshDescPanel === 'function') window.fcgRefreshDescPanel();
+  });
 </script>
 
 <!-- ============ Scripts ============ -->

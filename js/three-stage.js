@@ -51,7 +51,8 @@
     uHoverPos:  { value: new THREE.Vector2(0, 0) }, // NDC-space center bias
     uHover:     { value: 0 },                       // 0..1 strength of follow
     uInvert:    { value: 0 },                       // 0 = dark theme, 1 = light theme
-    uFillCircle:{ value: 0 }                        // 1 on homepage → fill the whole canvas
+    uFillCircle:{ value: 0 },                       // 1 on homepage → fill the whole canvas
+    uVideoAspect:{ value: 1.0 }                     // video w/h — for cover-fit UV
   };
 
   const vertSrc = `
@@ -76,6 +77,7 @@
     uniform float uHover;
     uniform float uInvert;
     uniform float uFillCircle;
+    uniform float uVideoAspect;
 
     float hash(vec2 p){ return fract(sin(dot(p, vec2(127.1,311.7)))*43758.5453); }
     float vnoise(vec2 p){
@@ -168,8 +170,15 @@
       vec3 procWash = mix(vec3(0.97, 0.92, 0.95), vec3(0.42, 0.18, 0.48), procInk);
       proc = mix(proc, procWash, uInvert);
 
-      // Real video texture ── shown as-is (no inversion, no wash)
+      // Real video texture ── shown as-is (no inversion, no wash).
+      // Cover-fit: scale UV so the rectangular video fills the square
+      // (=circular) canvas without letterbox bars. For a 16:9 source,
+      // we crop the sides; for a portrait source, we crop top/bottom.
       vec2 vidUv = vUv + vec2(uShift.x*0.06, 0.0);
+      float coverX = max(uVideoAspect, 1.0);   // > 1 when video is wider than canvas
+      float coverY = min(uVideoAspect, 1.0);   // < 1 when video is taller than canvas
+      vidUv.x = 0.5 + (vidUv.x - 0.5) / coverX;
+      vidUv.y = 0.5 + (vidUv.y - 0.5) * coverY;
       vec3 vid   = texture2D(uVideo, vidUv).rgb;
 
       // Final color: procedural until video kicks in
@@ -288,6 +297,8 @@
   bindMenuHover();
   // Re-bind if menu DOM changes after this script (defensive)
   setTimeout(bindMenuHover, 600);
+  // Expose so the menu builder can rebind after re-rendering (lang switch)
+  window.fcgRebindMenuHover = bindMenuHover;
 
   /* ── Tweaks ── */
   function applyTweaks() {
@@ -311,8 +322,30 @@
      fcgSetVideo('…', { loop: false, onEnded }) → play once, then callback
      fcgSetVideo(null)                          → revert to procedural shader
   */
-  window.fcgSetVideo = function (src, opts) {
-    opts = opts || {};
+  /* Smooth crossfade: dim the canvas to a trough, swap source AT the trough
+     (so the new clip's first frame doesn't pop in), then restore. Synced
+     with the .lens-stage__img::after image-fade (also 1.5s) so the user
+     sees the lens face and video transition as one continuous beat. */
+  const DIP_DOWN_MS = 750;
+  const DIP_UP_MS   = 750;
+  const DIP_LOW     = '0.16';
+
+  function smoothSwap(swapFn) {
+    const cc = document.getElementById('canvasContainer');
+    if (!cc) { swapFn(); return; }
+    // Phase 1: dim down
+    cc.style.transition = 'opacity ' + (DIP_DOWN_MS / 1000) + 's cubic-bezier(0.4, 0, 0.2, 1)';
+    cc.style.opacity = DIP_LOW;
+    clearTimeout(cc._fcgRestore);
+    // Phase 2: swap texture at the trough, then restore
+    cc._fcgRestore = setTimeout(() => {
+      swapFn();
+      cc.style.transition = 'opacity ' + (DIP_UP_MS / 1000) + 's cubic-bezier(0.4, 0, 0.2, 1)';
+      cc.style.opacity = '1';
+    }, DIP_DOWN_MS);
+  }
+
+  function performVideoSwap(src, opts) {
     if (videoEl) {
       videoEl.pause();
       videoEl.onended = null;
@@ -333,15 +366,10 @@
     videoEl = document.createElement('video');
     videoEl.muted       = true;       // must be set BEFORE src for autoplay
     videoEl.playsInline = true;
-    videoEl.loop        = opts.loop !== false;       // default true
+    videoEl.loop        = opts.loop !== false;
     videoEl.autoplay    = true;
     videoEl.preload     = 'auto';
-    // Cross-origin URLs (e.g. Supabase Storage) need crossOrigin so the
-    // texture is sampleable by WebGL. Same-origin local files skip it
-    // because Python's http.server emits no CORS headers.
-    if (/^https?:\/\//i.test(src)) {
-      videoEl.crossOrigin = 'anonymous';
-    }
+    if (/^https?:\/\//i.test(src)) videoEl.crossOrigin = 'anonymous';
     videoEl.src = src;
     if (typeof opts.onEnded === 'function') {
       videoEl.addEventListener('ended', opts.onEnded);
@@ -351,6 +379,14 @@
     });
     videoEl.addEventListener('loadeddata', () => {
       console.log('[fcg] video loaded:', src, videoEl.videoWidth + 'x' + videoEl.videoHeight);
+      if (videoEl.videoWidth && videoEl.videoHeight) {
+        uniforms.uVideoAspect.value = videoEl.videoWidth / videoEl.videoHeight;
+      }
+    });
+    videoEl.addEventListener('loadedmetadata', () => {
+      if (videoEl.videoWidth && videoEl.videoHeight) {
+        uniforms.uVideoAspect.value = videoEl.videoWidth / videoEl.videoHeight;
+      }
     });
     videoEl.play().catch((err) => {
       console.warn('[fcg] video autoplay blocked:', src, err);
@@ -358,10 +394,20 @@
     videoTex = new THREE.VideoTexture(videoEl);
     videoTex.minFilter = THREE.LinearFilter;
     videoTex.magFilter = THREE.LinearFilter;
-    // THREE.RGBFormat was removed in r158 — default RGBA is fine.
     uniforms.uVideo.value     = videoTex;
     uniforms.uVideoMode.value = 1.0;
     state.videoSrc = src;
+  }
+
+  window.fcgSetVideo = function (src, opts) {
+    opts = opts || {};
+    const isFirstLoad = !videoEl;
+    if (isFirstLoad) {
+      // No dim needed — the canvas is still in its intro fade-in window.
+      performVideoSwap(src, opts);
+    } else {
+      smoothSwap(() => performVideoSwap(src, opts));
+    }
   };
 
   // ── Cycle through a playlist (each clip plays once, then advances) ──
@@ -386,13 +432,64 @@
   // ── Homepage: fill the circular viewport + start the demo playlist ──
   if (document.documentElement.classList.contains('is-home')) {
     uniforms.uFillCircle.value = 1.0;
+
     // Hero loop clips, hosted on Supabase Storage (bucket: fcg-videos).
-    // Swap or extend the list here — the playlist auto-cycles.
     const FCG_VIDEO_CDN = 'https://wfstwbeehomzdudvikbt.supabase.co/storage/v1/object/public/fcg-videos';
-    window.fcgCycleVideos([
-      FCG_VIDEO_CDN + '/v1.mp4',
-      FCG_VIDEO_CDN + '/v2.mp4'
-    ]);
+    const DEFAULT_VIDEO  = FCG_VIDEO_CDN + '/windswept.mp4';
+    const DEFAULT_PLAYLIST = [DEFAULT_VIDEO];   // single looping reel
+    window.FCG_DEFAULT_VIDEO = DEFAULT_VIDEO;
+
+    /* Five services keyed to the engraved lens text. Labels come from the
+       i18n dictionary on hover; each maps to a dedicated clip in the
+       fcg-videos Supabase bucket. */
+    const FCG_SERVICES = {
+      film:        { i18nKey: 'svc.film',         video: FCG_VIDEO_CDN + '/svc-film.mp4' },
+      commercial:  { i18nKey: 'svc.commercial',   video: FCG_VIDEO_CDN + '/svc-commercial.mp4' },
+      vertical:    { i18nKey: 'svc.vertical',     video: FCG_VIDEO_CDN + '/svc-vertical.mp4' },
+      crossborder: { i18nKey: 'svc.crossborder',  video: FCG_VIDEO_CDN + '/svc-crossborder.mp4' },
+      consulting:  { i18nKey: 'svc.consulting',   video: FCG_VIDEO_CDN + '/junkbranding.mp4' }
+    };
+    window.FCG_SERVICES = FCG_SERVICES;
+    window.FCG_DEFAULT_PLAYLIST = DEFAULT_PLAYLIST;
+
+    // Start the default loop
+    window.fcgCycleVideos(DEFAULT_PLAYLIST);
+
+    // Bind lens hotzones (after DOM is parsed — this script is at end of body)
+    const labelEl = document.querySelector('.lens-service');
+    const hotzones = document.querySelectorAll('.lens-hot');
+    let restoreTimer = null;
+    let hoverActive = false;
+    hotzones.forEach((btn) => {
+      const key = btn.getAttribute('data-svc');
+      const svc = FCG_SERVICES[key];
+      if (!svc) return;
+      btn.addEventListener('mouseenter', () => {
+        hoverActive = true;
+        if (restoreTimer) { clearTimeout(restoreTimer); restoreTimer = null; }
+        // 1) swap the engraved lens face from default → services
+        document.body.classList.add('is-lens-services');
+        // 2) show the service-name chip above the lens
+        if (labelEl) {
+          const t = typeof window.fcgT === 'function' ? window.fcgT(svc.i18nKey) : '';
+          labelEl.textContent = t || svc.i18nKey;
+          labelEl.classList.add('is-active');
+        }
+        // 3) swap the video clip
+        window.fcgSetVideo(svc.video);   // loops by default
+      });
+      btn.addEventListener('mouseleave', () => {
+        hoverActive = false;
+        if (labelEl) labelEl.classList.remove('is-active');
+        // small delay so dragging across two hot zones doesn't reset
+        restoreTimer = setTimeout(() => {
+          if (!hoverActive) {
+            window.fcgCycleVideos(DEFAULT_PLAYLIST);
+            document.body.classList.remove('is-lens-services');
+          }
+        }, 250);
+      });
+    });
   }
 
   // ── Theme sync: respond to light/dark toggle from main.js ──

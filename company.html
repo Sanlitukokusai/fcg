@@ -23,58 +23,68 @@
     <small>Generative AI Film Studio</small>
   </a>
   <nav class="c-header__nav">
-    <a href="contact.html" data-page>CONTACT</a>
-    <a href="#">EN</a><a href="#">KR</a>
+    <a href="contact.html" data-page data-i18n="header.contact">CONTACT</a>
+    <button type="button" class="lang-pick" data-lang="jp">JP</button><button type="button" class="lang-pick" data-lang="en">EN</button><button type="button" class="lang-pick" data-lang="cn">CN</button>
   </nav>
 </header>
 
 <main class="p-sub">
   <section class="p-sub__hero">
     <div>
-      <div class="p-sub__crumb">FCG / Company · 会社情報</div>
-      <h1 class="p-sub__h">Company<span class="jp">FCGという会社について</span></h1>
+      <div class="p-sub__crumb" data-i18n="company.crumb">FCG / Company · 会社情報</div>
+      <h1 class="p-sub__h" data-i18n="company.h1">Company<span class="jp">FCGという会社について</span></h1>
     </div>
-    <div class="p-sub__count">EST. <b>2024</b>Tokyo · Japan</div>
+    <div class="p-sub__count" data-i18n="company.count">EST. <b>2017</b>Tokyo · Japan</div>
   </section>
 
   <section class="p-sub__section">
-    <div class="p-sub__sectionHead">01 / Philosophy</div>
-    <p class="p-about__lead is-jp">
-      FCGは、ジェネラティブAIを<em>道具</em>として用いる、映像制作のためのちいさなスタジオです。映画的なつくりかたを大切にしながら、ニューラルなツールでしか得られないテクスチャと時間感を、ひとつの作品に縫いとどけます。
+    <div class="p-sub__sectionHead" data-i18n="company.philosophy.head">01 / Philosophy</div>
+    <p class="p-about__lead is-jp" data-i18n="company.philosophy.lead">
+      FCGは、映画・AI・クロスカルチャー表現を通じて、<em>新しい映像言語</em>を探求するクリエイティブスタジオです。ニューラルな道具と古典的な映画文法を縫いあわせ、東京を拠点に、日中をまたぐプロジェクトをかたちにしています。
     </p>
     <div class="p-about__grid">
-      <p class="is-jp"><strong>つくるもの。</strong>短編映画、ミュージックビデオ、ブランドフィルムを中心に、必要に応じてR&amp;D成果も発表します。商業案件と自主企画の比率は半々を目安にしています。</p>
-      <p class="is-jp"><strong>つくりかた。</strong>カスタムの拡散モデル・パイプラインを内製し、Houdiniやコンポジット工程と組み合わせて、フレーム単位で制御可能な映像を生成します。AIに任せきりではなく、構図・演出・コンテは監督が責任を持ちます。</p>
-      <p class="is-jp"><strong>規模感。</strong>固定メンバーは数名。プロジェクトごとに監督・コラボレーター・エンジニアでチームを編成します。少人数で深く関与できる仕事を選びます。</p>
-      <p class="is-jp"><strong>姿勢。</strong>素材の出どころと権利の所在を明確にし、出演者・作家に正当に還元します。学習データ・モデル選定・使用範囲については、プロジェクトごとに合意書を交わします。</p>
+      <p class="is-jp" data-i18n="company.philosophy.p1"><strong>つくるもの。</strong>AIフィルム、コマーシャル／ブランドフィルム、ヴァーティカル・ショートドラマを軸に、日中越境のプロダクションと、企業向けのAIワークフロー導入支援も行います。</p>
+      <p class="is-jp" data-i18n="company.philosophy.p2"><strong>つくりかた。</strong>カスタム拡散モデルとHoudini／コンポジット工程を組み合わせ、フレーム単位で制御可能な映像をつくります。コンテと演出はディレクターが責任を持ちます。</p>
+      <p class="is-jp" data-i18n="company.philosophy.p3"><strong>規模感。</strong>少人数の固定チーム＋プロジェクトごとのコラボレーター。深く関与し、最後まで仕上げきれる仕事を選びます。</p>
+      <p class="is-jp" data-i18n="company.philosophy.p4"><strong>姿勢。</strong>素材の出どころと権利の所在を明確にし、出演者・作家へ正当に還元します。学習データとモデル選定は案件ごとに合意書を交わします。</p>
     </div>
   </section>
 
   <section class="p-sub__section">
-    <div class="p-sub__sectionHead">02 / Information</div>
+    <div class="p-sub__sectionHead" data-i18n="company.info.head">02 / Information</div>
     <dl class="p-company__info">
       <dt>商号 / Name</dt>
-      <dd>株式会社FCG<small>FCG Inc. (placeholder)</small></dd>
+      <dd>株式会社エフ・シー・ジー<small>FCG Inc.</small></dd>
+      <dt>会社法人等番号 / Corporate Number</dt>
+      <dd>0200-01-121161</dd>
       <dt>設立 / Established</dt>
-      <dd>2024年<small>2024</small></dd>
-      <dt>代表 / Representative</dt>
-      <dd>代表ディレクター<small>Director · Founder (TBD)</small></dd>
-      <dt>所在地 / Address</dt>
-      <dd>東京都目黒区中目黒（スタジオ）<small>Naka-Meguro, Tokyo · Japan</small></dd>
+      <dd>平成29年4月24日<small>April 24, 2017</small></dd>
+      <dt>代表取締役 / Representative Director</dt>
+      <dd>屈 東升<small>Qu Dongsheng · Founder &amp; CEO</small></dd>
+      <dt>本店所在地 / Head Office</dt>
+      <dd>東京都千代田区神田須田町一丁目7-1 ウィン神田7F<small>Win Kanda 7F, 1-7-1 Kanda-Sudacho, Chiyoda-ku, Tokyo, Japan</small></dd>
+      <dt>資本金 / Capital</dt>
+      <dd>500万円<small>JPY 5,000,000</small></dd>
+      <dt>発行済株式総数 / Issued Shares</dt>
+      <dd>500株 / 発行可能株式総数 1万株</dd>
       <dt>事業内容 / Services</dt>
-      <dd>映像制作 / ジェネラティブAIのR&amp;D / ブランド支援 / 教育・講演<small>Film · Generative AI R&amp;D · Brand · Talks</small></dd>
+      <dd>
+        AIフィルム制作 / コマーシャル・ブランドフィルム / ヴァーティカル・ショートドラマ / 日中越境プロダクション / AIワークフロー・コンサルティング
+        <small>AI Film · Commercial &amp; Brand · Vertical Short Drama · Cross-border (JP/CN) · AI Workflow Consulting</small>
+      </dd>
       <dt>連絡先 / Contact</dt>
       <dd>studio@fcg.film</dd>
     </dl>
   </section>
 
   <section class="p-sub__section">
-    <div class="p-sub__sectionHead">03 / Approach</div>
+    <div class="p-sub__sectionHead" data-i18n="company.services.head">03 / Services</div>
     <div class="p-about__grid">
-      <p class="is-jp"><strong>映画的に。</strong>カットの長さ、視線誘導、音の重なり——映画文法に基づいて構成します。AIが得意なのは「素材生成」であって「物語」ではない、と考えています。</p>
-      <p class="is-jp"><strong>具体的に。</strong>ムードボードや参考映像で抽象的に進めるより、絵コンテ・ショットリスト・ライティングプランで早めに具体化します。</p>
-      <p class="is-jp"><strong>制御可能に。</strong>seed管理、コンポジットでの最終調整、フレーム置換のしくみを整え、再現と修正に強い体制をつくります。</p>
-      <p class="is-jp"><strong>正直に。</strong>「AIだから万能」とは言いません。AIに向くショット・向かないショットを見極め、必要なら実写・3DCGも組み合わせます。</p>
+      <p class="is-jp" data-i18n="company.svc.film"><strong>AI Film Production.</strong>短編・長編・実験作品まで、生成AIを核に据えた映像制作。コンセプト開発からポストまで一貫対応。</p>
+      <p class="is-jp" data-i18n="company.svc.commercial"><strong>Commercial &amp; Brand Films.</strong>ブランドの世界観をAI／実写／3DCGの最適な組み合わせで具体化する、コマーシャル領域のディレクション。</p>
+      <p class="is-jp" data-i18n="company.svc.vertical"><strong>Vertical Short Drama.</strong>縦型短編ドラマの企画・制作・配信運用。プラットフォーム特性に最適化したシリーズ設計。</p>
+      <p class="is-jp" data-i18n="company.svc.cross"><strong>Cross-border Production (JP / CN).</strong>東京と中国主要都市を結ぶ越境プロダクション。キャスティング・ロケ・許認可・字幕／吹替まで対応。</p>
+      <p class="is-jp" data-i18n="company.svc.consulting"><strong>AI Workflow Consulting.</strong>制作会社・ブランド向けにAIパイプラインの内製化を支援。ツール選定、運用ガバナンス、社内研修まで。</p>
     </div>
   </section>
 </main>
@@ -84,21 +94,21 @@
     <a href="#">Instagram</a><a href="#">Vimeo</a><a href="#">X</a><a href="#">Behance</a>
   </aside>
   <div class="c-gnav__body">
-    <div class="c-gnav__col"><h6>Contents · 01</h6><ul>
-      <li><a href="index.html"  data-page><span class="num">01</span><span class="lbl">Home<span class="jp">ホーム</span></span></a></li>
-      <li><a href="news.html"   data-page><span class="num">02</span><span class="lbl">News<span class="jp">ニュース</span></span></a></li>
-      <li><a href="member.html" data-page><span class="num">03</span><span class="lbl">Member<span class="jp">メンバー</span></span></a></li>
+    <div class="c-gnav__col"><h6 data-i18n="nav.contents">Contents · 01</h6><ul>
+      <li><a href="index.html"  data-page><span class="num">01</span><span class="lbl" data-i18n="nav.home.lbl">Home<span class="jp">ホーム</span></span></a></li>
+      <li><a href="news.html"   data-page><span class="num">02</span><span class="lbl" data-i18n="nav.news.lbl">News<span class="jp">ニュース</span></span></a></li>
+      <li><a href="member.html" data-page><span class="num">03</span><span class="lbl" data-i18n="nav.member.lbl">Member<span class="jp">メンバー</span></span></a></li>
     </ul></div>
-    <div class="c-gnav__col"><h6>About · 02</h6><ul>
-      <li><a href="company.html" data-page><span class="num">04</span><span class="lbl">Company<span class="jp">会社情報</span></span></a></li>
-      <li><a href="recruit.html" data-page><span class="num">05</span><span class="lbl">Recruit<span class="jp">採用情報</span></span></a></li>
+    <div class="c-gnav__col"><h6 data-i18n="nav.about">About · 02</h6><ul>
+      <li><a href="company.html" data-page><span class="num">04</span><span class="lbl" data-i18n="nav.company.lbl">Company<span class="jp">会社情報</span></span></a></li>
+      <li><a href="recruit.html" data-page><span class="num">05</span><span class="lbl" data-i18n="nav.recruit.lbl">Recruit<span class="jp">採用情報</span></span></a></li>
     </ul></div>
-    <div class="c-gnav__col"><h6>Inquiry · 03</h6><ul>
-      <li><a href="contact.html" data-page><span class="num">06</span><span class="lbl">Contact<span class="jp">お問い合わせ</span></span></a></li>
+    <div class="c-gnav__col"><h6 data-i18n="nav.inquiry">Inquiry · 03</h6><ul>
+      <li><a href="contact.html" data-page><span class="num">06</span><span class="lbl" data-i18n="nav.contact.lbl">Contact<span class="jp">お問い合わせ</span></span></a></li>
     </ul></div>
     <div class="c-gnav__addr">
-      <div class="blk"><b>Tokyo · Studio</b>Naka-Meguro · Tokyo · Japan<br><span class="jp">東京都目黒区中目黒</span></div>
-      <div class="blk"><b>Studio Director</b>Director · Founder<br><span class="jp">代表ディレクター</span><br>studio@fcg.film</div>
+      <div class="blk"><b data-i18n="addr.office">Tokyo · Head Office</b>Win Kanda 7F, 1-7-1 Kanda-Sudacho,<br>Chiyoda-ku, Tokyo · Japan<br><span class="jp">東京都千代田区神田須田町一丁目7-1<br>ウィン神田7F</span></div>
+      <div class="blk"><b data-i18n="addr.rep">Representative Director</b>Qu Dongsheng · Founder &amp; CEO<br><span class="jp">代表取締役　屈 東升</span><br>studio@fcg.film</div>
     </div>
   </div>
 </nav>

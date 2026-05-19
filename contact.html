@@ -23,22 +23,22 @@
     <small>Generative AI Film Studio</small>
   </a>
   <nav class="c-header__nav">
-    <a href="contact.html" data-page>CONTACT</a>
-    <a href="#">EN</a><a href="#">KR</a>
+    <a href="contact.html" data-page data-i18n="header.contact">CONTACT</a>
+    <button type="button" class="lang-pick" data-lang="jp">JP</button><button type="button" class="lang-pick" data-lang="en">EN</button><button type="button" class="lang-pick" data-lang="cn">CN</button>
   </nav>
 </header>
 
 <main class="p-sub">
   <section class="p-sub__hero">
     <div>
-      <div class="p-sub__crumb">FCG / Contact · お問い合わせ</div>
-      <h1 class="p-sub__h">Contact<span class="jp">ご相談・お問い合わせ</span></h1>
+      <div class="p-sub__crumb" data-i18n="contact.crumb">FCG / Contact · お問い合わせ</div>
+      <h1 class="p-sub__h" data-i18n="contact.h1">Contact<span class="jp">ご相談・お問い合わせ</span></h1>
     </div>
-    <div class="p-sub__count">REPLY <b>~3 days</b>平日対応</div>
+    <div class="p-sub__count" data-i18n="contact.count">REPLY <b>~3 days</b>平日対応</div>
   </section>
 
   <section class="p-sub__section">
-    <div class="p-sub__sectionHead">01 / Inquiry form</div>
+    <div class="p-sub__sectionHead" data-i18n="contact.form.head">01 / Inquiry form</div>
     <div class="p-contact__wrap">
       <form class="p-contact__form" onsubmit="event.preventDefault(); alert('（プロトタイプ）送信は未配線です。studio@fcg.film まで直接ご連絡ください。');">
         <div class="p-contact__field">
@@ -75,8 +75,8 @@
           <div class="line">studio@fcg.film<small>Email · best for project briefs</small></div>
         </div>
         <div>
-          <h4>Studio</h4>
-          <div class="line">東京都目黒区中目黒<small>Naka-Meguro · Tokyo · Japan</small></div>
+          <h4>Head Office</h4>
+          <div class="line">東京都千代田区神田須田町一丁目7-1 ウィン神田7F<small>Win Kanda 7F, 1-7-1 Kanda-Sudacho, Chiyoda-ku, Tokyo · Japan</small></div>
         </div>
         <div>
           <h4>Hours</h4>
@@ -94,21 +94,21 @@
 <nav class="c-gnav" id="gnav" aria-hidden="true">
   <aside class="c-gnav__sns"><a href="#">Instagram</a><a href="#">Vimeo</a><a href="#">X</a><a href="#">Behance</a></aside>
   <div class="c-gnav__body">
-    <div class="c-gnav__col"><h6>Contents · 01</h6><ul>
-      <li><a href="index.html"  data-page><span class="num">01</span><span class="lbl">Home<span class="jp">ホーム</span></span></a></li>
-      <li><a href="news.html"   data-page><span class="num">02</span><span class="lbl">News<span class="jp">ニュース</span></span></a></li>
-      <li><a href="member.html" data-page><span class="num">03</span><span class="lbl">Member<span class="jp">メンバー</span></span></a></li>
+    <div class="c-gnav__col"><h6 data-i18n="nav.contents">Contents · 01</h6><ul>
+      <li><a href="index.html"  data-page><span class="num">01</span><span class="lbl" data-i18n="nav.home.lbl">Home<span class="jp">ホーム</span></span></a></li>
+      <li><a href="news.html"   data-page><span class="num">02</span><span class="lbl" data-i18n="nav.news.lbl">News<span class="jp">ニュース</span></span></a></li>
+      <li><a href="member.html" data-page><span class="num">03</span><span class="lbl" data-i18n="nav.member.lbl">Member<span class="jp">メンバー</span></span></a></li>
     </ul></div>
-    <div class="c-gnav__col"><h6>About · 02</h6><ul>
-      <li><a href="company.html" data-page><span class="num">04</span><span class="lbl">Company<span class="jp">会社情報</span></span></a></li>
-      <li><a href="recruit.html" data-page><span class="num">05</span><span class="lbl">Recruit<span class="jp">採用情報</span></span></a></li>
+    <div class="c-gnav__col"><h6 data-i18n="nav.about">About · 02</h6><ul>
+      <li><a href="company.html" data-page><span class="num">04</span><span class="lbl" data-i18n="nav.company.lbl">Company<span class="jp">会社情報</span></span></a></li>
+      <li><a href="recruit.html" data-page><span class="num">05</span><span class="lbl" data-i18n="nav.recruit.lbl">Recruit<span class="jp">採用情報</span></span></a></li>
     </ul></div>
-    <div class="c-gnav__col"><h6>Inquiry · 03</h6><ul>
-      <li><a href="contact.html" data-page><span class="num">06</span><span class="lbl">Contact<span class="jp">お問い合わせ</span></span></a></li>
+    <div class="c-gnav__col"><h6 data-i18n="nav.inquiry">Inquiry · 03</h6><ul>
+      <li><a href="contact.html" data-page><span class="num">06</span><span class="lbl" data-i18n="nav.contact.lbl">Contact<span class="jp">お問い合わせ</span></span></a></li>
     </ul></div>
     <div class="c-gnav__addr">
-      <div class="blk"><b>Tokyo · Studio</b>Naka-Meguro · Tokyo · Japan<br><span class="jp">東京都目黒区中目黒</span></div>
-      <div class="blk"><b>Studio Director</b>Director · Founder<br><span class="jp">代表ディレクター</span><br>studio@fcg.film</div>
+      <div class="blk"><b data-i18n="addr.office">Tokyo · Head Office</b>Win Kanda 7F, 1-7-1 Kanda-Sudacho,<br>Chiyoda-ku, Tokyo · Japan<br><span class="jp">東京都千代田区神田須田町一丁目7-1<br>ウィン神田7F</span></div>
+      <div class="blk"><b data-i18n="addr.rep">Representative Director</b>Qu Dongsheng · Founder &amp; CEO<br><span class="jp">代表取締役　屈 東升</span><br>studio@fcg.film</div>
     </div>
   </div>
 </nav>
