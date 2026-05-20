@@ -250,7 +250,10 @@ html.is-sub body {
 @media (max-width: 900px) {
   .top_nav {
     padding-left: 20px !important;
-    margin-top: 28.6vh !important;
+    /* Pushed down so the menu list starts well below the hero
+       (and the lens). Bumped from 28.6vh to give the SCROLL hint
+       and hero meta clear breathing room above. */
+    margin-top: 70vh !important;
   }
   .top_nav ul {
     flex-direction: column;
@@ -1908,6 +1911,9 @@ body.is-light .lens-stage__img { filter: brightness(0.78) contrast(0.95); }
     padding: 92px 20px 24px;
     justify-content: center;
     gap: 12px;
+    /* Lift the centred content ~5vh so the title sits higher in the
+       viewport and leaves breathing room above the menu. */
+    transform: translateY(-5vh);
   }
   .top_hero__crumb  { font-size: 9px; letter-spacing: .14em; }
   .top_hero__title  { font-size: 11px; line-height: 1.4; }
@@ -1928,12 +1934,15 @@ body.is-light .lens-stage__img { filter: brightness(0.78) contrast(0.95); }
     font-size: 9.5px;
     max-width: 52vw;
   }
-  .top_hero__hint   { font-size: 9px; }
-  .top_hero__hint .jp { font-size: 10px; }
+  /* "Scroll right to view menu" hint is meaningless on the
+     mobile vertical layout — hide it entirely on phone. */
+  .top_hero__hint   { display: none; }
 
-  /* === Vertical menu list below the hero === */
+  /* === Vertical menu list below the hero ===
+     70vh breathing room so the menu starts well below the SCROLL
+     hint at the bottom of the hero. */
   .top_nav {
-    margin-top: 0;
+    margin-top: 70vh !important;
     padding: 40px 24px 120px;
     flex: none;
   }
@@ -1965,8 +1974,10 @@ body.is-light .lens-stage__img { filter: brightness(0.78) contrast(0.95); }
   /* Hide the horizontal-scroll progress bar — not meaningful in
      vertical layout. The c-gnav hamburger is the canonical nav. */
   .scroll_ui      { display: none; }
-  /* Description panel is also irrelevant on mobile */
-  .menu-desc-panel { display: none; }
+  /* Description panel is irrelevant on mobile — !important so the
+     older mobile override at line ~235 (which only sets position) can't
+     accidentally bring it back. */
+  .menu-desc-panel { display: none !important; }
 
   /* When the user scrolls past the hero, fade the fixed lens out so
      it doesn't sit on top of the menu list. */
