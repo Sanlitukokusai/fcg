@@ -1773,8 +1773,11 @@ body.is-light .lens-stage__img { filter: brightness(0.78) contrast(0.95); }
   max-width: clamp(360px, 28vw, 540px);
   margin: 0;
   color: var(--fg);
+  /* Prefer breaking at 、/・ (keep-all), but allow any-character break
+     as a fallback so a single long Japanese clause can never bleed
+     past the column and overlap the lens. */
   word-break: keep-all;
-  overflow-wrap: normal;
+  overflow-wrap: anywhere;
 }
 .top_hero__lead .u {
   border-bottom: 1px solid var(--fg);
