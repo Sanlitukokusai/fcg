@@ -40,33 +40,34 @@
   <section class="p-sub__section">
     <div class="p-sub__sectionHead" data-i18n="contact.form.head">01 / Inquiry form</div>
     <div class="p-contact__wrap">
-      <form class="p-contact__form" onsubmit="event.preventDefault(); alert('（プロトタイプ）送信は未配線です。studio@fcg.film まで直接ご連絡ください。');">
+      <form class="p-contact__form" id="contactForm" novalidate>
         <div class="p-contact__field">
           <label>お問い合わせの種類<span class="req">*</span></label>
           <div class="p-contact__radio">
-            <input type="radio" id="kind-work"    name="kind" checked><label for="kind-work">案件相談</label>
-            <input type="radio" id="kind-press"   name="kind"><label for="kind-press">取材依頼</label>
-            <input type="radio" id="kind-recruit" name="kind"><label for="kind-recruit">採用について</label>
-            <input type="radio" id="kind-other"   name="kind"><label for="kind-other">その他</label>
+            <input type="radio" id="kind-work"    name="type" value="案件相談"    checked><label for="kind-work">案件相談</label>
+            <input type="radio" id="kind-press"   name="type" value="取材依頼"><label for="kind-press">取材依頼</label>
+            <input type="radio" id="kind-recruit" name="type" value="採用について"><label for="kind-recruit">採用について</label>
+            <input type="radio" id="kind-other"   name="type" value="その他"><label for="kind-other">その他</label>
           </div>
         </div>
         <div class="p-contact__field">
-          <label>お名前<span class="req">*</span></label>
-          <input type="text" placeholder="例：山田 太郎" required>
+          <label for="cf-name">お名前<span class="req">*</span></label>
+          <input id="cf-name"    name="name"    type="text"  placeholder="例：山田 太郎" required>
         </div>
         <div class="p-contact__field">
-          <label>会社・所属（任意）</label>
-          <input type="text" placeholder="例：株式会社○○">
+          <label for="cf-company">会社・所属（任意）</label>
+          <input id="cf-company" name="company" type="text"  placeholder="例：株式会社○○">
         </div>
         <div class="p-contact__field">
-          <label>メールアドレス<span class="req">*</span></label>
-          <input type="email" placeholder="example@domain.com" required>
+          <label for="cf-email">メールアドレス<span class="req">*</span></label>
+          <input id="cf-email"   name="email"   type="email" placeholder="example@domain.com" required>
         </div>
         <div class="p-contact__field">
-          <label>ご相談内容<span class="req">*</span></label>
-          <textarea placeholder="プロジェクトの概要、目的、想定スケジュール、参考映像などをお書きください。" required></textarea>
+          <label for="cf-message">ご相談内容<span class="req">*</span></label>
+          <textarea id="cf-message" name="message" placeholder="プロジェクトの概要、目的、想定スケジュール、参考映像などをお書きください。" required></textarea>
         </div>
-        <button type="submit" class="p-contact__submit">送信する</button>
+        <button type="submit" class="p-contact__submit" id="cf-submit">送信する</button>
+        <p class="p-contact__status" id="cf-status" aria-live="polite"></p>
       </form>
 
       <aside class="p-contact__info">
@@ -116,5 +117,56 @@
 <div class="c-cover is-in"></div>
 
 <script src="js/main.js"></script>
+<script>
+  /* === Contact form → Cloudflare Worker ===
+   * Live endpoint. Worker source lives in fcg-contact-worker/ next to
+   * this repo. Replace with custom domain once it's bound. */
+  const FCG_CONTACT_ENDPOINT = 'https://fcg-contact.engineerit.workers.dev/';
+
+  (function () {
+    const form    = document.getElementById('contactForm');
+    const status  = document.getElementById('cf-status');
+    const submit  = document.getElementById('cf-submit');
+    if (!form || !status || !submit) return;
+
+    function setStatus(msg, kind) {
+      status.textContent = msg;
+      status.dataset.kind = kind || '';
+    }
+
+    form.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      if (!form.reportValidity()) return;
+
+      // Block submission if endpoint hasn't been set yet
+      if (/REPLACE_ME/.test(FCG_CONTACT_ENDPOINT)) {
+        setStatus('お問い合わせフォームを準備中です。studio@fcg.film まで直接ご連絡ください。', 'warn');
+        return;
+      }
+
+      submit.disabled = true;
+      const original = submit.textContent;
+      submit.textContent = '送信中…';
+      setStatus('', '');
+
+      try {
+        const fd   = new FormData(form);
+        const resp = await fetch(FCG_CONTACT_ENDPOINT, { method: 'POST', body: fd });
+        const json = await resp.json().catch(() => ({}));
+        if (resp.ok && json.ok) {
+          form.reset();
+          setStatus('送信完了。3 営業日以内にご連絡いたします。', 'ok');
+        } else {
+          setStatus('送信失敗：' + (json.error || resp.status), 'err');
+        }
+      } catch (err) {
+        setStatus('送信失敗：ネットワークエラー', 'err');
+      } finally {
+        submit.disabled = false;
+        submit.textContent = original;
+      }
+    });
+  })();
+</script>
 </body>
 </html>

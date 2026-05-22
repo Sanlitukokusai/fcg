@@ -1065,6 +1065,21 @@ body.is-gnav .c-gnav {
 }
 .p-contact__submit:hover { background: var(--fg); color: var(--bg); }
 .p-contact__submit::after { content: "→"; }
+.p-contact__submit[disabled] {
+  opacity: 0.55;
+  cursor: progress;
+}
+.p-contact__status {
+  margin: 12px 0 0;
+  font-family: var(--font-mono);
+  font-size: 12px;
+  letter-spacing: .12em;
+  color: var(--dim);
+  min-height: 1.5em;
+}
+.p-contact__status[data-kind="ok"]   { color: #7ad19f; }
+.p-contact__status[data-kind="err"]  { color: #ff8b8b; }
+.p-contact__status[data-kind="warn"] { color: #f3c46a; }
 .p-contact__info {
   padding: 32px;
   border: 1px solid var(--hair);
