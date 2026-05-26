@@ -450,13 +450,14 @@
 
     /* Five services keyed to the engraved lens text. Labels come from the
        i18n dictionary on hover; each maps to a dedicated clip in the
-       fcg-videos Supabase bucket. */
+       fcg-videos Supabase bucket. v2 clips are square-cropped 1080×1080
+       so they fit the round lens viewport with no letterbox. */
     const FCG_SERVICES = {
-      film:        { i18nKey: 'svc.film',         video: FCG_VIDEO_CDN + '/svc-film.mp4' },
-      commercial:  { i18nKey: 'svc.commercial',   video: FCG_VIDEO_CDN + '/svc-commercial.mp4' },
-      vertical:    { i18nKey: 'svc.vertical',     video: FCG_VIDEO_CDN + '/svc-vertical.mp4' },
-      crossborder: { i18nKey: 'svc.crossborder',  video: FCG_VIDEO_CDN + '/svc-crossborder.mp4' },
-      consulting:  { i18nKey: 'svc.consulting',   video: FCG_VIDEO_CDN + '/junkbranding.mp4' }
+      film:        { i18nKey: 'svc.film',         video: FCG_VIDEO_CDN + '/svc-film2.mp4' },
+      commercial:  { i18nKey: 'svc.commercial',   video: FCG_VIDEO_CDN + '/svc-commercial2.mp4' },
+      vertical:    { i18nKey: 'svc.vertical',     video: FCG_VIDEO_CDN + '/svc-vertical2.mp4' },
+      crossborder: { i18nKey: 'svc.crossborder',  video: FCG_VIDEO_CDN + '/svc-crossborder2.mp4' },
+      consulting:  { i18nKey: 'svc.consulting',   video: FCG_VIDEO_CDN + '/svc-consulting2.mp4' }
     };
     window.FCG_SERVICES = FCG_SERVICES;
     window.FCG_DEFAULT_PLAYLIST = DEFAULT_PLAYLIST;
