@@ -153,19 +153,9 @@
     <span class="sound-toggle__label">SOUND OFF</span>
   </button>
 
-  <!-- ============ Sound prompt — first-visit modal ============ -->
-  <div class="sound-prompt" id="soundPrompt" hidden role="dialog" aria-labelledby="soundPromptTitle">
-    <div class="sound-prompt__card">
-      <div class="sound-prompt__icon" aria-hidden="true">
-        <span class="bar"></span><span class="bar"></span><span class="bar"></span><span class="bar"></span>
-      </div>
-      <p class="sound-prompt__title" id="soundPromptTitle" data-i18n="sound.title">この体験はサウンドと共にお楽しみいただけます。<br><span>音楽を再生しますか？</span></p>
-      <div class="sound-prompt__row">
-        <button type="button" class="sound-prompt__btn is-primary" data-choice="on"  data-i18n="sound.yes">YES, PLAY MUSIC</button>
-        <button type="button" class="sound-prompt__btn"            data-choice="off" data-i18n="sound.no">NO THANKS</button>
-      </div>
-    </div>
-  </div>
+  <!-- Sound prompt removed per spec — visitors land silent and can flip
+       on the sound toggle at the bottom-right if they want music. -->
+
 
   <!-- ============ GNAV overlay ============ -->
   <nav class="c-gnav" id="gnav" aria-hidden="true">

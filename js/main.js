@@ -743,30 +743,15 @@
       else setOn();
     });
 
-    // First-visit prompt (only shows when no preference is saved yet)
+    // No first-visit prompt — default to silent, let users opt in via
+    // the bottom-right sound toggle. If a returning visitor previously
+    // turned sound on we still try to resume it (most browsers will
+    // require an in-page gesture before audio plays).
     const saved = localStorage.getItem(KEY);
     if (saved === 'on') {
-      // Saved preference: try to autoplay (often blocked until next gesture)
       audio.play().then(() => reflect(true)).catch(() => reflect(false));
-    } else if (saved === 'off') {
+    } else {
       reflect(false);
-    } else if (prompt) {
-      // Show the prompt once the loading screen has lifted
-      const showPrompt = () => { prompt.hidden = false; };
-      if (document.body.classList.contains('is-loaded')) showPrompt();
-      else setTimeout(showPrompt, 1300);
-
-      prompt.querySelectorAll('[data-choice]').forEach((btn) => {
-        btn.addEventListener('click', () => {
-          const choice = btn.getAttribute('data-choice');
-          prompt.hidden = true;
-          if (choice === 'on') setOn();
-          else setOff();
-          // The button click is a user gesture — kick any paused <video>
-          // to start playing now (mobile autoplay unblock).
-          if (typeof window.fcgKickVideos === 'function') window.fcgKickVideos();
-        });
-      });
     }
   })();
 

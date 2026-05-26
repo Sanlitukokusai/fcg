@@ -347,7 +347,7 @@ body.is-gnav .c-gnav__back {
 .theme-toggle {
   position: fixed;
   bottom: 22px;
-  right: 22px;
+  left: 22px;
   z-index: 1100;
   width: 132px;
   height: 38px;
@@ -1420,7 +1420,7 @@ body.is-loaded .lens-stage__img {
  * ============================================================ */
 .sound-toggle {
   position: fixed;
-  left: 20px;
+  right: 20px;
   bottom: 20px;
   z-index: 1100;
   display: inline-flex;
@@ -1929,9 +1929,9 @@ body.is-light .lens-stage__img { filter: brightness(0.78) contrast(0.95); }
     padding: 92px 20px 24px;
     justify-content: center;
     gap: 12px;
-    /* Lift the centred content ~5vh so the title sits higher in the
-       viewport and leaves breathing room above the menu. */
-    transform: translateY(-5vh);
+    /* Lift the centred content ~5vh + 33px so the title sits higher in
+       the viewport and leaves breathing room above the menu. */
+    transform: translateY(calc(-5vh - 33px));
   }
   .top_hero__crumb  { font-size: 9px; letter-spacing: .14em; }
   .top_hero__title  { font-size: 11px; line-height: 1.4; }
@@ -2018,10 +2018,12 @@ body.is-light .lens-stage__img { filter: brightness(0.78) contrast(0.95); }
   .lang-pick            { font-size: 9px; padding: 0 8px; height: 26px; letter-spacing: .16em; }
   .c-header             { padding-right: calc(3vw + 64px) !important; }
 
-  /* === Sound + Theme toggles: smaller so they don't crowd the lens === */
+  /* === Sound + Theme toggles: smaller so they don't crowd the lens.
+         Positions mirror the desktop swap (sound = right, theme = left). === */
   .sound-toggle {
     bottom: 14px;
-    left: 14px;
+    right: 14px;
+    left: auto;
     height: 32px;
     padding: 5px 12px 5px 8px;
     font-size: 9px;
@@ -2033,7 +2035,8 @@ body.is-light .lens-stage__img { filter: brightness(0.78) contrast(0.95); }
 
   .theme-toggle {
     bottom: 14px;
-    right: 14px;
+    left: 14px;
+    right: auto;
     width: 110px;
     height: 34px;
   }
