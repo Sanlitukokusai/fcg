@@ -743,15 +743,29 @@
       else setOn();
     });
 
-    // No first-visit prompt — default to silent, let users opt in via
-    // the bottom-right sound toggle. If a returning visitor previously
-    // turned sound on we still try to resume it (most browsers will
-    // require an in-page gesture before audio plays).
-    const saved = localStorage.getItem(KEY);
-    if (saved === 'on') {
-      audio.play().then(() => reflect(true)).catch(() => reflect(false));
-    } else {
+    // Default = sound ON. We stay silent only if the user has explicitly
+    // muted the site before. Browsers will usually block unsolicited
+    // audio autoplay, so when the first play() rejects we register a
+    // one-shot listener on the document — the very next gesture (click,
+    // tap, scroll-tap, key) starts the music.
+    const saved   = localStorage.getItem(KEY);
+    const wantsOn = saved !== 'off';
+
+    if (!wantsOn) {
       reflect(false);
+    } else {
+      audio.play().then(() => reflect(true)).catch(() => {
+        reflect(false);
+        const start = () => {
+          audio.play().then(() => reflect(true)).catch(() => {});
+          ['pointerdown', 'click', 'touchend', 'keydown'].forEach((ev) =>
+            document.removeEventListener(ev, start, true)
+          );
+        };
+        ['pointerdown', 'click', 'touchend', 'keydown'].forEach((ev) =>
+          document.addEventListener(ev, start, { capture: true, once: true, passive: true })
+        );
+      });
     }
   })();
 
