@@ -455,7 +455,7 @@
     const FCG_SERVICES = {
       film:        { i18nKey: 'svc.film',         video: FCG_VIDEO_CDN + '/svc-film2.mp4' },
       commercial:  { i18nKey: 'svc.commercial',   video: FCG_VIDEO_CDN + '/svc-commercial2.mp4' },
-      vertical:    { i18nKey: 'svc.vertical',     video: FCG_VIDEO_CDN + '/svc-vertical2.mp4' },
+      vertical:    { i18nKey: 'svc.vertical',     video: FCG_VIDEO_CDN + '/svc-vertical3.mp4' },
       crossborder: { i18nKey: 'svc.crossborder',  video: FCG_VIDEO_CDN + '/svc-crossborder2.mp4' },
       consulting:  { i18nKey: 'svc.consulting',   video: FCG_VIDEO_CDN + '/svc-consulting2.mp4' }
     };
