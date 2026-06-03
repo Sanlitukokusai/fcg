@@ -1289,10 +1289,15 @@ html.is-home {
   left: 50%;
   width: var(--lens-size);
   height: var(--lens-size);
-  background: url("../img/bg/lens.jpg") center / cover no-repeat;
+  /* Default lens face = image A (AI Film Production / AI Workflow Consulting /
+     Cross-border Production / Zoom Lens / 50-120mm). Hovering the
+     Zoom-Lens / 50-120mm zones flips to image C (lens-services) via ::after. */
+  background: url("../img/bg/lens-a.jpg") center / cover no-repeat;
   /* Crop the surrounding dark photo backdrop — keep the full lens
-     visible (outer ring with text + inner aperture). */
-  clip-path: circle(33.8% at 50% 50%);
+     visible (outer ring with text + inner aperture). Radius 36% clears
+     image A's top "AI Film Production" text (peaks at r=0.342) while
+     staying inside the metal body (no bg corners revealed). */
+  clip-path: circle(36% at 50% 50%);
   transform: translate(calc(-50% + var(--lens-shift)), -50%) scale(3.2);
   opacity: 0;
 }

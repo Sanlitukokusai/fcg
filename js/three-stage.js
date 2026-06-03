@@ -330,19 +330,24 @@
   const DIP_UP_MS   = 750;
   const DIP_LOW     = '0.16';
 
-  function smoothSwap(swapFn) {
+  function smoothSwap(swapFn, quick) {
     const cc = document.getElementById('canvasContainer');
     if (!cc) { swapFn(); return; }
+    // quick = fast montage crossfade (playlist advance); slow = dramatic
+    // 0.75s dip that syncs with the 1.5s lens-face cross-fade.
+    const down = quick ? 200 : DIP_DOWN_MS;
+    const up   = quick ? 200 : DIP_UP_MS;
+    const low  = quick ? '0.34' : DIP_LOW;
     // Phase 1: dim down
-    cc.style.transition = 'opacity ' + (DIP_DOWN_MS / 1000) + 's cubic-bezier(0.4, 0, 0.2, 1)';
-    cc.style.opacity = DIP_LOW;
+    cc.style.transition = 'opacity ' + (down / 1000) + 's cubic-bezier(0.4, 0, 0.2, 1)';
+    cc.style.opacity = low;
     clearTimeout(cc._fcgRestore);
     // Phase 2: swap texture at the trough, then restore
     cc._fcgRestore = setTimeout(() => {
       swapFn();
-      cc.style.transition = 'opacity ' + (DIP_UP_MS / 1000) + 's cubic-bezier(0.4, 0, 0.2, 1)';
+      cc.style.transition = 'opacity ' + (up / 1000) + 's cubic-bezier(0.4, 0, 0.2, 1)';
       cc.style.opacity = '1';
-    }, DIP_DOWN_MS);
+    }, down);
   }
 
   function performVideoSwap(src, opts) {
@@ -415,24 +420,39 @@
       // No dim needed — the canvas is still in its intro fade-in window.
       performVideoSwap(src, opts);
     } else {
-      smoothSwap(() => performVideoSwap(src, opts));
+      smoothSwap(() => performVideoSwap(src, opts), opts.quick);
     }
   };
 
-  // ── Cycle through a playlist (each clip plays once, then advances) ──
-  window.fcgCycleVideos = function (urls) {
+  // ── Timed playlist: advance to the next clip every `intervalMs` and
+  //    loop. Used by the AI-Film (5s) and Cross-border (3s) montages.
+  //    Quick crossfade between clips (no lens-face change). ──
+  let _fcgPlTimer = null;
+  window.fcgStopPlaylist = function () {
+    if (_fcgPlTimer) { clearInterval(_fcgPlTimer); _fcgPlTimer = null; }
+  };
+  window.fcgPlaylistTimed = function (urls, intervalMs) {
+    window.fcgStopPlaylist();
     if (!urls || urls.length === 0) return;
     let idx = 0;
-    const advance = () => {
+    window.fcgSetVideo(urls[0], { loop: true, quick: true });
+    if (urls.length === 1) return;
+    _fcgPlTimer = setInterval(() => {
       idx = (idx + 1) % urls.length;
-      window.fcgSetVideo(urls[idx], { loop: false, onEnded: advance });
-    };
-    // If only one URL, just loop it normally.
-    if (urls.length === 1) {
-      window.fcgSetVideo(urls[0]);
-    } else {
-      window.fcgSetVideo(urls[0], { loop: false, onEnded: advance });
-    }
+      window.fcgSetVideo(urls[idx], { loop: true, quick: true });
+    }, intervalMs);
+  };
+
+  // ── Play a single looping clip (stops any running playlist first). ──
+  window.fcgPlayOne = function (url, opts) {
+    window.fcgStopPlaylist();
+    window.fcgSetVideo(url, Object.assign({ loop: true }, opts || {}));
+  };
+
+  // Back-compat shim (older callers)
+  window.fcgCycleVideos = function (urls) {
+    if (urls && urls.length === 1) window.fcgPlayOne(urls[0]);
+    else window.fcgPlaylistTimed(urls, 6000);
   };
 
   // Auto-load from default if specified
@@ -443,59 +463,63 @@
     uniforms.uFillCircle.value = 1.0;
 
     // Hero loop clips, hosted on Supabase Storage (bucket: fcg-videos).
-    const FCG_VIDEO_CDN = 'https://wfstwbeehomzdudvikbt.supabase.co/storage/v1/object/public/fcg-videos';
-    const DEFAULT_VIDEO  = FCG_VIDEO_CDN + '/windswept.mp4';
-    const DEFAULT_PLAYLIST = [DEFAULT_VIDEO];   // single looping reel
+    const CDN = 'https://wfstwbeehomzdudvikbt.supabase.co/storage/v1/object/public/fcg-videos';
+    const DEFAULT_VIDEO = CDN + '/windswept.mp4';
     window.FCG_DEFAULT_VIDEO = DEFAULT_VIDEO;
 
-    /* Five services keyed to the engraved lens text. Labels come from the
-       i18n dictionary on hover; each maps to a dedicated clip in the
-       fcg-videos Supabase bucket. v2 clips are square-cropped 1080×1080
-       so they fit the round lens viewport with no letterbox. */
-    const FCG_SERVICES = {
-      film:        { i18nKey: 'svc.film',         video: FCG_VIDEO_CDN + '/svc-film2.mp4' },
-      commercial:  { i18nKey: 'svc.commercial',   video: FCG_VIDEO_CDN + '/svc-commercial2.mp4' },
-      vertical:    { i18nKey: 'svc.vertical',     video: FCG_VIDEO_CDN + '/svc-vertical3.mp4' },
-      crossborder: { i18nKey: 'svc.crossborder',  video: FCG_VIDEO_CDN + '/svc-crossborder3.mp4' },
-      consulting:  { i18nKey: 'svc.consulting',   video: FCG_VIDEO_CDN + '/svc-consulting2.mp4' }
+    // AI Film montage (top zone) — 3 clips, 5s each.
+    const AIFILM = [1, 2, 3].map((n) => CDN + '/aifilm-' + n + '.mp4');
+    // Cross-border montage (bottom zone) — 20 clips, 3s each.
+    const CROSSBORDER = [];
+    for (let n = 1; n <= 20; n++) {
+      CROSSBORDER.push(CDN + '/cb-' + String(n).padStart(2, '0') + '.mp4');
+    }
+    // Vertical Short Drama montage (rb zone) — 6 clips from 日本短剧, 5s each.
+    const VERTICAL = [1, 2, 3, 4, 5, 6].map((n) => CDN + '/vsd-' + n + '.mp4');
+
+    /* Hot-zone behaviour map, keyed by the data-svc attribute.
+       lensC=true  → flip the engraved lens face to image C (lens-services)
+       lensC=false → keep image A (the default face)                       */
+    const ZONES = {
+      film:        { kind: 'playlist', urls: AIFILM,      interval: 5000, lensC: false },
+      consulting:  { kind: 'single',   url: CDN + '/svc-consulting2.mp4', lensC: false },
+      crossborder: { kind: 'playlist', urls: CROSSBORDER, interval: 3000, lensC: false },
+      commercial:  { kind: 'single',   url: CDN + '/svc-commercial2.mp4', lensC: true  },
+      vertical:    { kind: 'playlist', urls: VERTICAL,    interval: 5000, lensC: true  }
     };
-    window.FCG_SERVICES = FCG_SERVICES;
-    window.FCG_DEFAULT_PLAYLIST = DEFAULT_PLAYLIST;
+    window.FCG_ZONES = ZONES;
 
-    // Start the default loop
-    window.fcgCycleVideos(DEFAULT_PLAYLIST);
+    // Start the default reel (single looping clip, image A face).
+    window.fcgPlayOne(DEFAULT_VIDEO);
 
-    // Bind lens hotzones (after DOM is parsed — this script is at end of body)
-    const labelEl = document.querySelector('.lens-service');
+    // Bind lens hotzones (this script runs at end of <body>).
     const hotzones = document.querySelectorAll('.lens-hot');
     let restoreTimer = null;
     let hoverActive = false;
     hotzones.forEach((btn) => {
       const key = btn.getAttribute('data-svc');
-      const svc = FCG_SERVICES[key];
-      if (!svc) return;
+      const cfg = ZONES[key];
+      if (!cfg) return;
       btn.addEventListener('mouseenter', () => {
         hoverActive = true;
         if (restoreTimer) { clearTimeout(restoreTimer); restoreTimer = null; }
-        // 1) swap the engraved lens face from default → services
-        document.body.classList.add('is-lens-services');
-        // 2) show the service-name chip above the lens
-        if (labelEl) {
-          const t = typeof window.fcgT === 'function' ? window.fcgT(svc.i18nKey) : '';
-          labelEl.textContent = t || svc.i18nKey;
-          labelEl.classList.add('is-active');
+        // Lens face: only commercial / vertical flip to image C.
+        document.body.classList.toggle('is-lens-services', !!cfg.lensC);
+        if (cfg.kind === 'playlist') {
+          window.fcgPlaylistTimed(cfg.urls, cfg.interval);
+        } else {
+          // quick crossfade when the face stays on A; slow dip (synced with
+          // the 1.5s lens cross-fade) when flipping to C.
+          window.fcgPlayOne(cfg.url, { quick: !cfg.lensC });
         }
-        // 3) swap the video clip
-        window.fcgSetVideo(svc.video);   // loops by default
       });
       btn.addEventListener('mouseleave', () => {
         hoverActive = false;
-        if (labelEl) labelEl.classList.remove('is-active');
-        // small delay so dragging across two hot zones doesn't reset
+        // small delay so dragging across two adjacent zones doesn't reset
         restoreTimer = setTimeout(() => {
           if (!hoverActive) {
-            window.fcgCycleVideos(DEFAULT_PLAYLIST);
             document.body.classList.remove('is-lens-services');
+            window.fcgPlayOne(DEFAULT_VIDEO, { quick: true });
           }
         }, 250);
       });

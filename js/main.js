@@ -747,7 +747,7 @@
     // muted the site before. Browsers will usually block unsolicited
     // audio autoplay, so when the first play() rejects we register a
     // one-shot listener on the document — the very next gesture (click,
-    // tap, scroll-tap, key) starts the music.
+    // tap, scroll-tap, key, mousemove) starts the music.
     const saved   = localStorage.getItem(KEY);
     const wantsOn = saved !== 'off';
 
@@ -756,14 +756,22 @@
     } else {
       audio.play().then(() => reflect(true)).catch(() => {
         reflect(false);
+        // Browsers only count these specific events as a "user activation"
+        // — mousemove / scroll alone do NOT unlock audio. Listeners stay
+        // armed (no `once`) until a play() call actually succeeds, so a
+        // failed attempt on the wrong event doesn't burn the chance.
+        const TRIGGERS = ['pointerdown', 'click', 'touchend', 'keydown'];
+        const cleanup = () => TRIGGERS.forEach((ev) =>
+          document.removeEventListener(ev, start, true)
+        );
         const start = () => {
-          audio.play().then(() => reflect(true)).catch(() => {});
-          ['pointerdown', 'click', 'touchend', 'keydown'].forEach((ev) =>
-            document.removeEventListener(ev, start, true)
-          );
+          audio.play().then(() => {
+            reflect(true);
+            cleanup();
+          }).catch(() => { /* still blocked — leave armed for next gesture */ });
         };
-        ['pointerdown', 'click', 'touchend', 'keydown'].forEach((ev) =>
-          document.addEventListener(ev, start, { capture: true, once: true, passive: true })
+        TRIGGERS.forEach((ev) =>
+          document.addEventListener(ev, start, { capture: true, passive: true })
         );
       });
     }
