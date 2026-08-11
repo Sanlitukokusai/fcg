@@ -463,7 +463,7 @@
     uniforms.uFillCircle.value = 1.0;
 
     // Hero loop clips, hosted on Supabase Storage (bucket: fcg-videos).
-    const CDN = 'https://wfstwbeehomzdudvikbt.supabase.co/storage/v1/object/public/fcg-videos';
+    const CDN = 'https://main-api.the-moon.biz/storage/v1/object/public/fcg-videos';
     const DEFAULT_VIDEO = CDN + '/windswept.mp4';
     window.FCG_DEFAULT_VIDEO = DEFAULT_VIDEO;
 

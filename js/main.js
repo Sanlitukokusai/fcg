@@ -313,7 +313,7 @@
 
     function open() {
       const src = window.FCG_DEFAULT_VIDEO ||
-        'https://wfstwbeehomzdudvikbt.supabase.co/storage/v1/object/public/fcg-videos/junkbranding.mp4';
+        'https://main-api.the-moon.biz/storage/v1/object/public/fcg-videos/junkbranding.mp4';
       if (video.src !== src) video.src = src;
       video.muted = true;             // start muted per spec
       video.currentTime = 0;

@@ -2,8 +2,8 @@
 // The anon key is intentionally public — RLS policies in fcg.news control
 // what each role can actually read or write.
 window.FCG_SB = {
-  url:  'https://wfstwbeehomzdudvikbt.supabase.co',
-  anon: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Indmc3R3YmVlaG9temR1ZHZpa2J0Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3Njk3MjE5MDAsImV4cCI6MjA4NTI5NzkwMH0.IZpw9YGjz09Yl-PDR8_SYRHBdTwqEDdQeJvQBVo7Xdw',
+  url:  'https://main-api.the-moon.biz',
+  anon: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJyb2xlIjoiYW5vbiIsImlzcyI6InN1cGFiYXNlIiwiaWF0IjoxNzg1OTIwNjg1LCJleHAiOjE5NDM2MDA2ODV9.pxzmJr7sBHK1pxOl3QJUguAQ_DWo_NsvaOsxzXF1AMY',
   // Public passthrough view that mirrors fcg.news (PostgREST only exposes `public`)
   tableNews: 'fcg_news',
   bucket: 'fcg-news'
