@@ -428,18 +428,46 @@
   //    loop. Used by the AI-Film (5s) and Cross-border (3s) montages.
   //    Quick crossfade between clips (no lens-face change). ──
   let _fcgPlTimer = null;
+  let _fcgPlIdx = 0;
+  // Off-screen element that warms the browser cache with the NEXT clip so
+  // the crossfade doesn't stall on a 15MB download. Single instance, reused.
+  let _fcgPrefetchEl = null;
+  function prefetchClip(url) {
+    if (!_fcgPrefetchEl) {
+      _fcgPrefetchEl = document.createElement('video');
+      _fcgPrefetchEl.preload = 'auto';
+      _fcgPrefetchEl.muted = true;
+      _fcgPrefetchEl.playsInline = true;
+      _fcgPrefetchEl.setAttribute('playsinline', '');
+      // Must match performVideoSwap, otherwise the cache entry won't be hit.
+      _fcgPrefetchEl.crossOrigin = 'anonymous';
+    }
+    _fcgPrefetchEl.src = url;
+  }
   window.fcgStopPlaylist = function () {
     if (_fcgPlTimer) { clearInterval(_fcgPlTimer); _fcgPlTimer = null; }
+    if (_fcgPrefetchEl) {
+      _fcgPrefetchEl.removeAttribute('src');
+      _fcgPrefetchEl.load();
+    }
   };
-  window.fcgPlaylistTimed = function (urls, intervalMs) {
+  // Index of the clip currently shown by the running playlist.
+  window.fcgPlaylistIndex = function () { return _fcgPlIdx; };
+  // startIdx (optional, default 0): clip to begin with — used to resume a
+  // playlist where it left off.
+  window.fcgPlaylistTimed = function (urls, intervalMs, startIdx) {
     window.fcgStopPlaylist();
     if (!urls || urls.length === 0) return;
-    let idx = 0;
-    window.fcgSetVideo(urls[0], { loop: true, quick: true });
+    let idx = (startIdx > 0 ? startIdx : 0) % urls.length;
+    _fcgPlIdx = idx;
+    window.fcgSetVideo(urls[idx], { loop: true, quick: true });
     if (urls.length === 1) return;
+    prefetchClip(urls[(idx + 1) % urls.length]);
     _fcgPlTimer = setInterval(() => {
       idx = (idx + 1) % urls.length;
+      _fcgPlIdx = idx;
       window.fcgSetVideo(urls[idx], { loop: true, quick: true });
+      prefetchClip(urls[(idx + 1) % urls.length]);
     }, intervalMs);
   };
 
@@ -467,6 +495,16 @@
     const DEFAULT_VIDEO = CDN + '/windswept.mp4';
     window.FCG_DEFAULT_VIDEO = DEFAULT_VIDEO;
 
+    // Default hero reel: 4 clips, ~15s each, looping.
+    const HERO_REEL = [
+      DEFAULT_VIDEO,
+      CDN + '/hero-2.mp4',
+      CDN + '/hero-3.mp4',
+      CDN + '/hero-4.mp4'
+    ];
+    const HERO_INTERVAL = 15000;
+    window.FCG_HERO_REEL = HERO_REEL;
+
     // AI Film montage (top zone) — 3 clips, 5s each.
     const AIFILM = [1, 2, 3].map((n) => CDN + '/aifilm-' + n + '.mp4');
     // Cross-border montage (bottom zone) — 20 clips, 3s each.
@@ -489,8 +527,12 @@
     };
     window.FCG_ZONES = ZONES;
 
-    // Start the default reel (single looping clip, image A face).
-    window.fcgPlayOne(DEFAULT_VIDEO);
+    // Start the default hero reel (image A face). heroPlaying is true only
+    // while the hero reel (not a hot-zone clip) is on screen; heroIdx
+    // remembers where to resume after a hot-zone hover.
+    let heroPlaying = true;
+    let heroIdx = 0;
+    window.fcgPlaylistTimed(HERO_REEL, HERO_INTERVAL);
 
     // Bind lens hotzones (this script runs at end of <body>).
     const hotzones = document.querySelectorAll('.lens-hot');
@@ -503,6 +545,8 @@
       btn.addEventListener('mouseenter', () => {
         hoverActive = true;
         if (restoreTimer) { clearTimeout(restoreTimer); restoreTimer = null; }
+        // Remember the hero clip we're leaving (skip if already in a zone).
+        if (heroPlaying) { heroIdx = window.fcgPlaylistIndex(); heroPlaying = false; }
         // Lens face: only commercial / vertical flip to image C.
         document.body.classList.toggle('is-lens-services', !!cfg.lensC);
         if (cfg.kind === 'playlist') {
@@ -519,7 +563,8 @@
         restoreTimer = setTimeout(() => {
           if (!hoverActive) {
             document.body.classList.remove('is-lens-services');
-            window.fcgPlayOne(DEFAULT_VIDEO, { quick: true });
+            heroPlaying = true;
+            window.fcgPlaylistTimed(HERO_REEL, HERO_INTERVAL, heroIdx);
           }
         }, 250);
       });
