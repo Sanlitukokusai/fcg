@@ -425,7 +425,8 @@
   };
 
   // ── Timed playlist: advance to the next clip every `intervalMs` and
-  //    loop. Used by the AI-Film (5s) and Cross-border (3s) montages.
+  //    loop. Used by the hero reel (10s) and the AI-Film (5s) /
+  //    Cross-border (3s) montages.
   //    Quick crossfade between clips (no lens-face change). ──
   let _fcgPlTimer = null;
   let _fcgPlIdx = 0;
@@ -495,14 +496,14 @@
     const DEFAULT_VIDEO = CDN + '/windswept.mp4';
     window.FCG_DEFAULT_VIDEO = DEFAULT_VIDEO;
 
-    // Default hero reel: 4 clips, ~15s each, looping.
+    // Default hero reel: 4 clips, 10s each, looping.
     const HERO_REEL = [
       DEFAULT_VIDEO,
       CDN + '/hero-2.mp4',
       CDN + '/hero-3.mp4',
       CDN + '/hero-4.mp4'
     ];
-    const HERO_INTERVAL = 15000;
+    const HERO_INTERVAL = 10000;
     window.FCG_HERO_REEL = HERO_REEL;
 
     // AI Film montage (top zone) — 3 clips, 5s each.
