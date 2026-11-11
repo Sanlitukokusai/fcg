@@ -493,7 +493,9 @@
 
     // Hero loop clips, hosted on Supabase Storage (bucket: fcg-videos).
     const CDN = 'https://main-api.the-moon.biz/storage/v1/object/public/fcg-videos';
-    const DEFAULT_VIDEO = CDN + '/windswept.mp4';
+    // Cover clip = the 冲锋衣 (shell-jacket) film; windswept (the art-film
+    // trailer) now sits in its old reel slot.
+    const DEFAULT_VIDEO = CDN + '/hero-4.mp4';
     window.FCG_DEFAULT_VIDEO = DEFAULT_VIDEO;
 
     // Default hero reel: 4 clips, 10s each, looping.
@@ -501,7 +503,7 @@
       DEFAULT_VIDEO,
       CDN + '/hero-2.mp4',
       CDN + '/hero-3.mp4',
-      CDN + '/hero-4.mp4'
+      CDN + '/windswept.mp4'
     ];
     const HERO_INTERVAL = 10000;
     window.FCG_HERO_REEL = HERO_REEL;
